@@ -7,12 +7,16 @@
 //
 
 #include <iostream>
+#include "network.h"
 
 int main(int argc, const char * argv[])
 {
-
-    // insert code here...
-    std::cout << "Hello, World!\n";
+    Network n(7, 0, 6);
+    Network m(7, 0, 6);
+    
+    n.test();
+    n.edmondskarp(&m);
+    
     return 0;
 }
 
