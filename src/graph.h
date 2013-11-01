@@ -12,11 +12,12 @@
 class Graph
 {
 protected:
-    int nodes;
     double *intencities;
-    double **arcs;
     
 public:
+    int nodes;
+    double **arcs;
+    
     Graph(int nodes);
     Graph(const Graph &graph);
     ~Graph();

@@ -9,13 +9,23 @@
 #include <iostream>
 #include "network.h"
 
+#define NODESNUM 9
+
 int main(int argc, const char * argv[])
 {
-    Network n(7, 0, 6);
-    Network m(7, 0, 6);
+    double maxFlow = 0;
+    Graph undirected(NODESNUM);
     
-    n.test();
-    n.edmondskarp(&m);
+    Network associatedNetwork(NODESNUM, 0, 8);
+    Network minimumCutEdges(NODESNUM, 0, 8);
+    
+    undirected.test();
+
+    associatedNetwork.obduct(undirected, 0, 8);
+
+    maxFlow = associatedNetwork.edmondskarp(minimumCutEdges);
+    
+    minimumCutEdges.print();
     
     return 0;
 }

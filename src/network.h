@@ -18,8 +18,11 @@ class Network : public Graph
     
 public:
     Network(int _nodes, int _source, int _sink);
-    double edmondskarp(Network *residualNetwork);
+    double edmondskarp(Network &residualNetwork);
     std::vector<int> shortestAugmentingPath(void);
+    void obduct(Graph &graph, int src, int snk);
+    
+    void minimumCut(Network &minCutEdges);
 };
 
 #endif /* defined(__graphcut__network__) */

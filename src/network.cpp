@@ -7,10 +7,11 @@
 //
 
 #include <queue>
+#include <stack>
 #include <iostream>
 #include "network.h"
 
-double Network::edmondskarp(Network *minimumCut)
+double Network::edmondskarp(Network &minimumCut)
 {
     double maxFlow = 0, capacity = 0, minCapacity = 0;
     int i = 0, j = 0;
@@ -54,16 +55,21 @@ double Network::edmondskarp(Network *minimumCut)
     for (i = 0; i < nodes; i++)
     {
         maxFlow += flowNetwork.arcs[source][i];
-        
+    }
+
+    residualNetwork.minimumCut(minimumCut);
+    
+    for (i = 0; i < nodes; i++)
+    {
         for (j = 0; j < nodes; j++)
         {
-            if (arcs[i][j] && flowNetwork.arcs[i][j] == arcs[i][j])
+            if (arcs[i][j] == 0)
             {
-                minimumCut->arcs[i][j] = 1;
+                minimumCut.arcs[i][j] = 0;
             }
         }
     }
-
+    
     return maxFlow;
 }
 
@@ -128,4 +134,72 @@ found:
     std::for_each(reversedPath.rbegin(), reversedPath.rend(), [&path](int val) { path.push_back(val); });
 
     return path;
+}
+
+void Network::obduct(Graph &graph, int src, int snk)
+{
+    int i = 0, j = 0;
+    
+    for (i = 0; i < graph.nodes; i++)
+    {
+        for (j = 0; j < graph.nodes; j++)
+        {
+            arcs[i][j] = graph.arcs[i][j];
+        }
+    }
+    
+    for (i = 0; i < graph.nodes; i++)
+    {
+        arcs[i][src] = 0;
+        arcs[snk][i] = 0;
+    }
+
+    source = src;
+    sink = snk;
+    
+    print();
+}
+
+void Network::minimumCut(Network &minCutEdges)
+{
+    std::vector<int> visitedNodes(nodes, 0);
+    std::stack<int> toVisit;
+    int currentNode = 0,
+    neighbour;
+    int i = 0, j = 0;
+    
+    visitedNodes[0] = 1;
+    
+    toVisit.push(0);
+    
+    while (!toVisit.empty())
+    {
+        currentNode = toVisit.top();
+        toVisit.pop();
+        
+        for (int i = 0; i < nodes; i++)
+        {
+            if (arcs[currentNode][i] <= 0)
+            {
+                continue;
+            }
+            neighbour = i;
+            if (!visitedNodes[neighbour])
+            {
+                visitedNodes[neighbour] = 1;
+                toVisit.push(neighbour);
+            }
+        }
+    }
+    
+    for (i = 0; i < nodes; i++)
+    {
+        for (j = 0; j < nodes; j++)
+        {
+            if (visitedNodes[i] && !visitedNodes[j])
+            {
+                minCutEdges.arcs[i][j] = 1;
+            }
+        }
+    }
 }

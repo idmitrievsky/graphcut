@@ -25,6 +25,7 @@ Graph::Graph(int _nodes)
             arcs[i][j] = 0;
         }
     }
+    print();
 }
 
 Graph::Graph(const Graph&graph)
@@ -77,17 +78,41 @@ Graph::~Graph(void)
 
 void Graph::test(void)
 {
-    arcs[0][1] = 3;
-    arcs[0][3] = 3;
-    arcs[1][2] = 4;
-    arcs[2][0] = 3;
-    arcs[2][3] = 1;
-    arcs[2][4] = 2;
-    arcs[3][4] = 2;
-    arcs[3][5] = 6;
-    arcs[4][1] = 1;
-    arcs[4][6] = 1;
+    int i = 0, j = 0;
+    
+    arcs[0][1] = 12;
+    arcs[0][2] = 15;
+    arcs[0][3] = 20;
+    arcs[1][2] = 5;
+    arcs[1][5] = 5;
+    arcs[1][6] = 2;
+    arcs[2][3] = 11;
+    arcs[2][4] = 3;
+    arcs[2][6] = 6;
+    arcs[3][4] = 4;
+    arcs[3][7] = 8;
+    arcs[4][6] = 6;
+    arcs[4][7] = 1;
     arcs[5][6] = 9;
+    arcs[5][8] = 18;
+    arcs[6][7] = 7;
+    arcs[6][8] = 13;
+    arcs[7][8] = 10;
+    
+    for (i = 0; i < nodes; i++)
+    {
+        for (j = 0; j < i + 1; j++)
+        {
+            if (arcs[i][j])
+            {
+                arcs[j][i] = arcs[i][j];
+            }
+            if (arcs[j][i])
+            {
+                arcs[i][j] = arcs[j][i];
+            }
+        }
+    }
 }
 
 void Graph::erase(void)
@@ -115,6 +140,7 @@ void Graph::print(void)
         }
         std::cout << std::endl;
     }
+    std::cout << std::endl << std::endl;
 }
 
 
@@ -123,7 +149,7 @@ void Graph::bfs(void)
     std::vector<int> visitedNodes(nodes, 0);
     std::queue<int> toVisit;
     int currentNode = 0,
-                      neighbour;
+        neighbour   = 0;
     
     visitedNodes[0] = 1;
     
@@ -149,3 +175,4 @@ void Graph::bfs(void)
         }
     }
 }
+
