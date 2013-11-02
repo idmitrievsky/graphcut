@@ -19,17 +19,11 @@ double Network::edmondskarp(Network &minimumCut)
     std::vector<int> path;
     std::vector<int>::iterator it;
     
-    for (i = 0; i < _nodes; i++)
-    {
-        for (j = 0; j < _nodes; j++)
-        {
-            flowNetwork._arcs[i][j] = 0;
-        }
-    }
-    
     while (!(path = residualNetwork.shortestAugmentingPath()).empty())
     {
+        /* Start with initial minimum value */
         minCapacity = residualNetwork._arcs[*path.begin()][*(path.begin() + 1)];
+        /* Skip initial value */
         for (it = path.begin() + 1; it != path.end() - 1; it++)
         {
             if (residualNetwork._arcs[*it][*(it + 1)] < minCapacity)
@@ -37,11 +31,13 @@ double Network::edmondskarp(Network &minimumCut)
                 minCapacity = residualNetwork._arcs[*it][*(it + 1)];
             }
         }
+        /* Increase flow as much as possible */
         for (it = path.begin(); it != path.end() - 1; it++)
         {
             flowNetwork._arcs[*it][*(it + 1)] +=  minCapacity;
             flowNetwork._arcs[*(it + 1)][*it]  = -1 * flowNetwork._arcs[*it][*(it + 1)];
         }
+        /* Decrease capacity in residual network  */
         for (i = 0; i < _nodes; i++)
         {
             for (j = 0; j < _nodes; j++)
@@ -52,13 +48,16 @@ double Network::edmondskarp(Network &minimumCut)
         }
     }
     
+    /* Calculate all the flow coming from source */
     for (i = 0; i < _nodes; i++)
     {
         maxFlow += flowNetwork._arcs[source][i];
     }
 
+    /* Find blocking saturated edges or disconnected pairs of nodes */
     residualNetwork.minimumCut(minimumCut);
     
+    /* Filter out disconnected pairs of nodes */
     for (i = 0; i < _nodes; i++)
     {
         for (j = 0; j < _nodes; j++)
@@ -73,7 +72,7 @@ double Network::edmondskarp(Network &minimumCut)
     return maxFlow;
 }
 
-Network::Network(int __nodes, int _source, int _sink):Graph(__nodes)
+Network::Network(int nodesNum, int _source, int _sink):Graph(nodesNum)
 {
     source = _source;
     sink = _sink;
@@ -85,12 +84,14 @@ std::vector<int> Network::shortestAugmentingPath(void)
     std::vector<int> visitedNodes(_nodes, 0), ancestors(_nodes, 0);
     std::vector<int> reversedPath, path;
     int currentNode = 0,
-        neighbour;
+        neighbour   = 0;
     int i = 0;
     
+    /* Start from the source */
     toVisit.push(source);
-    
     visitedNodes[source] = 1;
+    
+    /* Source don't have any ancestors */
     ancestors[source] = -1;
     
     while (!toVisit.empty())
@@ -100,6 +101,7 @@ std::vector<int> Network::shortestAugmentingPath(void)
         
         for (i = 0; i < _nodes; i++)
         {
+            /* If <i> is unreachable from <currentNode> */
             if (_arcs[currentNode][i] <= 0)
             {
                 continue;
@@ -108,6 +110,7 @@ std::vector<int> Network::shortestAugmentingPath(void)
             if (!visitedNodes[neighbour])
             {
                 visitedNodes[neighbour] = 1;
+                /* Write ancestor for backwards path */
                 ancestors[neighbour] = currentNode;
                 
                 toVisit.push(neighbour);
@@ -119,18 +122,22 @@ std::vector<int> Network::shortestAugmentingPath(void)
         }
     }
     
+    /* Never reached sink, it's blocked */
     if (toVisit.empty())
     {
         return reversedPath;
     }
     
 found:
+    /* Start from the sink */
     currentNode = sink;
+    /* Make up a path */
     while (currentNode != -1)
     {
         reversedPath.push_back(currentNode);
         currentNode = ancestors[currentNode];
     }
+    /* Reverse path */
     std::for_each(reversedPath.rbegin(), reversedPath.rend(), [&path](int val) { path.push_back(val); });
 
     return path;
@@ -156,8 +163,6 @@ void Network::obduct(Graph &graph, int src, int snk)
 
     source = src;
     sink = snk;
-    
-    print();
 }
 
 void Network::minimumCut(Network &minCutEdges)
@@ -165,12 +170,12 @@ void Network::minimumCut(Network &minCutEdges)
     std::vector<int> visitedNodes(_nodes, 0);
     std::stack<int> toVisit;
     int currentNode = 0,
-    neighbour;
+        neighbour   = 0;
     int i = 0, j = 0;
     
-    visitedNodes[0] = 1;
-    
-    toVisit.push(0);
+    /* Start from source */
+    visitedNodes[source] = 1;
+    toVisit.push(source);
     
     while (!toVisit.empty())
     {
@@ -179,6 +184,7 @@ void Network::minimumCut(Network &minCutEdges)
         
         for (int i = 0; i < _nodes; i++)
         {
+            /* If <i> is unreachable from <currentNode> */
             if (_arcs[currentNode][i] <= 0)
             {
                 continue;
@@ -192,6 +198,7 @@ void Network::minimumCut(Network &minCutEdges)
         }
     }
     
+    /* If <j> is unreachable from <i> it is either blocked or they are disconnected */
     for (i = 0; i < _nodes; i++)
     {
         for (j = 0; j < _nodes; j++)

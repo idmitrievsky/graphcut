@@ -17,11 +17,18 @@ class Network : public Graph
     int source, sink;
     
 public:
-    Network(int _nodes, int _source, int _sink);
-    double edmondskarp(Network &residualNetwork);
-    std::vector<int> shortestAugmentingPath(void);
+    Network(int nodesNum, int _source, int _sink);
+    
+    /* Make a valid network from undirected graph*/
     void obduct(Graph &graph, int src, int snk);
     
+    /* Find the shortest augmenting path from source to sink */
+    std::vector<int> shortestAugmentingPath(void);
+    
+    /* Find the maximum flow from source to sink and write minimum cut edges to <minCut> */
+    double edmondskarp(Network &minCut);
+    
+    /* Find all blocking saturated edges in residual network */
     void minimumCut(Network &minCutEdges);
 };
 
