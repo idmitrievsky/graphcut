@@ -11,18 +11,28 @@
 #include <iostream>
 #include "graph.h"
 
-Graph::Graph(int _nodes)
+int Graph::nodes(void)
 {
-    nodes = _nodes;
+    return _nodes;
+}
+
+double Graph::arcs(int i, int j)
+{
+    return _arcs[i][j];
+}
+
+Graph::Graph(int nodesNum)
+{
+    _nodes = nodesNum;
     
-    arcs = new double*[nodes];
+    _arcs = new double*[_nodes];
     
-    for (int i = 0; i < nodes; i++)
+    for (int i = 0; i < _nodes; i++)
     {
-        arcs[i] = new double[nodes];
-        for (int j = 0; j < nodes; j++)
+        _arcs[i] = new double[_nodes];
+        for (int j = 0; j < _nodes; j++)
         {
-            arcs[i][j] = 0;
+            _arcs[i][j] = 0;
         }
     }
     print();
@@ -30,16 +40,16 @@ Graph::Graph(int _nodes)
 
 Graph::Graph(const Graph&graph)
 {
-    nodes = graph.nodes;
+    _nodes = graph._nodes;
     
-    arcs = new double*[nodes];
+    _arcs = new double*[_nodes];
     
-    for (int i = 0; i < nodes; i++)
+    for (int i = 0; i < _nodes; i++)
     {
-        arcs[i] = new double[nodes];
-        for (int j = 0; j < nodes; j++)
+        _arcs[i] = new double[_nodes];
+        for (int j = 0; j < _nodes; j++)
         {
-            arcs[i][j] = graph.arcs[i][j];
+            _arcs[i][j] = graph._arcs[i][j];
         }
     }
 }
@@ -48,16 +58,16 @@ Graph & Graph::operator = (const Graph &graph)
 {
     if (this != &graph)
     {
-        nodes = graph.nodes;
+        _nodes = graph._nodes;
         
-        arcs = new double*[nodes];
+        _arcs = new double*[_nodes];
         
-        for (int i = 0; i < nodes; i++)
+        for (int i = 0; i < _nodes; i++)
         {
-            arcs[i] = new double[nodes];
-            for (int j = 0; j < nodes; j++)
+            _arcs[i] = new double[_nodes];
+            for (int j = 0; j < _nodes; j++)
             {
-                arcs[i][j] = graph.arcs[i][j];
+                _arcs[i][j] = graph._arcs[i][j];
             }
         }
     }
@@ -68,48 +78,48 @@ Graph & Graph::operator = (const Graph &graph)
 
 Graph::~Graph(void)
 {
-    for (int i = 0; i < nodes; i++)
+    for (int i = 0; i < _nodes; i++)
     {
-        delete [] arcs[i];
+        delete [] _arcs[i];
     }
     
-    delete [] arcs;
+    delete [] _arcs;
 }
 
-void Graph::test(void)
+void Graph::testFillUp(void)
 {
     int i = 0, j = 0;
     
-    arcs[0][1] = 12;
-    arcs[0][2] = 15;
-    arcs[0][3] = 20;
-    arcs[1][2] = 5;
-    arcs[1][5] = 5;
-    arcs[1][6] = 2;
-    arcs[2][3] = 11;
-    arcs[2][4] = 3;
-    arcs[2][6] = 6;
-    arcs[3][4] = 4;
-    arcs[3][7] = 8;
-    arcs[4][6] = 6;
-    arcs[4][7] = 1;
-    arcs[5][6] = 9;
-    arcs[5][8] = 18;
-    arcs[6][7] = 7;
-    arcs[6][8] = 13;
-    arcs[7][8] = 10;
+    _arcs[0][1] = 12;
+    _arcs[0][2] = 15;
+    _arcs[0][3] = 20;
+    _arcs[1][2] = 5;
+    _arcs[1][5] = 5;
+    _arcs[1][6] = 2;
+    _arcs[2][3] = 11;
+    _arcs[2][4] = 3;
+    _arcs[2][6] = 6;
+    _arcs[3][4] = 4;
+    _arcs[3][7] = 8;
+    _arcs[4][6] = 6;
+    _arcs[4][7] = 1;
+    _arcs[5][6] = 9;
+    _arcs[5][8] = 18;
+    _arcs[6][7] = 7;
+    _arcs[6][8] = 13;
+    _arcs[7][8] = 10;
     
-    for (i = 0; i < nodes; i++)
+    for (i = 0; i < _nodes; i++)
     {
         for (j = 0; j < i + 1; j++)
         {
-            if (arcs[i][j])
+            if (_arcs[i][j])
             {
-                arcs[j][i] = arcs[i][j];
+                _arcs[j][i] = _arcs[i][j];
             }
-            if (arcs[j][i])
+            if (_arcs[j][i])
             {
-                arcs[i][j] = arcs[j][i];
+                _arcs[i][j] = _arcs[j][i];
             }
         }
     }
@@ -119,11 +129,11 @@ void Graph::erase(void)
 {
     int i, j;
     
-    for (i = 0; i < nodes; i++)
+    for (i = 0; i < _nodes; i++)
     {
-        for (j = 0; j < nodes; j++)
+        for (j = 0; j < _nodes; j++)
         {
-            arcs[i][j] = 0;
+            _arcs[i][j] = 0;
         }
     }
 }
@@ -132,11 +142,11 @@ void Graph::print(void)
 {
     int i, j;
     
-    for (i = 0; i < nodes; i++)
+    for (i = 0; i < _nodes; i++)
     {
-        for (j = 0; j < nodes; j++)
+        for (j = 0; j < _nodes; j++)
         {
-            std::cout << arcs[i][j] << ' ';
+            std::cout << _arcs[i][j] << ' ';
         }
         std::cout << std::endl;
     }
@@ -146,13 +156,13 @@ void Graph::print(void)
 
 void Graph::bfs(void)
 {
-    std::vector<int> visitedNodes(nodes, 0);
+    std::vector<int> visitedNodes(_nodes, 0);
     std::queue<int> toVisit;
     int currentNode = 0,
         neighbour   = 0;
     
+    /* Start from the first node */
     visitedNodes[0] = 1;
-    
     toVisit.push(0);
     
     while (!toVisit.empty())
@@ -160,9 +170,10 @@ void Graph::bfs(void)
         currentNode = toVisit.front();
         toVisit.pop();
         
-        for (int i = 0; i < nodes; i++)
+        for (int i = 0; i < _nodes; i++)
         {
-            if (arcs[currentNode][i] <= 0)
+            /* If <i> is unreacheable from <currentNode> */
+            if (_arcs[currentNode][i] <= 0)
             {
                 continue;
             }

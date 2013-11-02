@@ -12,19 +12,25 @@
 class Graph
 {
 protected:
+    int _nodes;
     double *intencities;
+    double **_arcs;
     
 public:
-    int nodes;
-    double **arcs;
+    /* Getters */
+    int nodes(void);
+    double arcs(int i, int j);
     
-    Graph(int nodes);
+    /* Constructors and destructors */
+    Graph(int _nodes);
     Graph(const Graph &graph);
     ~Graph();
     
+    /* Operators */
     Graph & operator = (const Graph &graph);
     
-    void test(void);
+    /* Methods */
+    void testFillUp(void);
     void erase(void);
     void print(void);
     void bfs(void);

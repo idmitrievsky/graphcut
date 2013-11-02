@@ -15,57 +15,57 @@ double Network::edmondskarp(Network &minimumCut)
 {
     double maxFlow = 0, capacity = 0, minCapacity = 0;
     int i = 0, j = 0;
-    Network residualNetwork = *this, flowNetwork(nodes, source, sink);
+    Network residualNetwork = *this, flowNetwork(_nodes, source, sink);
     std::vector<int> path;
     std::vector<int>::iterator it;
     
-    for (i = 0; i < nodes; i++)
+    for (i = 0; i < _nodes; i++)
     {
-        for (j = 0; j < nodes; j++)
+        for (j = 0; j < _nodes; j++)
         {
-            flowNetwork.arcs[i][j] = 0;
+            flowNetwork._arcs[i][j] = 0;
         }
     }
     
     while (!(path = residualNetwork.shortestAugmentingPath()).empty())
     {
-        minCapacity = residualNetwork.arcs[*path.begin()][*(path.begin() + 1)];
+        minCapacity = residualNetwork._arcs[*path.begin()][*(path.begin() + 1)];
         for (it = path.begin() + 1; it != path.end() - 1; it++)
         {
-            if (residualNetwork.arcs[*it][*(it + 1)] < minCapacity)
+            if (residualNetwork._arcs[*it][*(it + 1)] < minCapacity)
             {
-                minCapacity = residualNetwork.arcs[*it][*(it + 1)];
+                minCapacity = residualNetwork._arcs[*it][*(it + 1)];
             }
         }
         for (it = path.begin(); it != path.end() - 1; it++)
         {
-            flowNetwork.arcs[*it][*(it + 1)] +=  minCapacity;
-            flowNetwork.arcs[*(it + 1)][*it]  = -1 * flowNetwork.arcs[*it][*(it + 1)];
+            flowNetwork._arcs[*it][*(it + 1)] +=  minCapacity;
+            flowNetwork._arcs[*(it + 1)][*it]  = -1 * flowNetwork._arcs[*it][*(it + 1)];
         }
-        for (i = 0; i < nodes; i++)
+        for (i = 0; i < _nodes; i++)
         {
-            for (j = 0; j < nodes; j++)
+            for (j = 0; j < _nodes; j++)
             {
-                capacity = arcs[i][j] - flowNetwork.arcs[i][j];
-                residualNetwork.arcs[i][j] = capacity > 0 ? capacity : 0;
+                capacity = _arcs[i][j] - flowNetwork._arcs[i][j];
+                residualNetwork._arcs[i][j] = capacity > 0 ? capacity : 0;
             }
         }
     }
     
-    for (i = 0; i < nodes; i++)
+    for (i = 0; i < _nodes; i++)
     {
-        maxFlow += flowNetwork.arcs[source][i];
+        maxFlow += flowNetwork._arcs[source][i];
     }
 
     residualNetwork.minimumCut(minimumCut);
     
-    for (i = 0; i < nodes; i++)
+    for (i = 0; i < _nodes; i++)
     {
-        for (j = 0; j < nodes; j++)
+        for (j = 0; j < _nodes; j++)
         {
-            if (arcs[i][j] == 0)
+            if (_arcs[i][j] == 0)
             {
-                minimumCut.arcs[i][j] = 0;
+                minimumCut._arcs[i][j] = 0;
             }
         }
     }
@@ -73,7 +73,7 @@ double Network::edmondskarp(Network &minimumCut)
     return maxFlow;
 }
 
-Network::Network(int _nodes, int _source, int _sink):Graph(_nodes)
+Network::Network(int __nodes, int _source, int _sink):Graph(__nodes)
 {
     source = _source;
     sink = _sink;
@@ -82,7 +82,7 @@ Network::Network(int _nodes, int _source, int _sink):Graph(_nodes)
 std::vector<int> Network::shortestAugmentingPath(void)
 {
     std::queue<int> toVisit;
-    std::vector<int> visitedNodes(nodes, 0), ancestors(nodes, 0);
+    std::vector<int> visitedNodes(_nodes, 0), ancestors(_nodes, 0);
     std::vector<int> reversedPath, path;
     int currentNode = 0,
         neighbour;
@@ -98,9 +98,9 @@ std::vector<int> Network::shortestAugmentingPath(void)
         currentNode = toVisit.front();
         toVisit.pop();
         
-        for (i = 0; i < nodes; i++)
+        for (i = 0; i < _nodes; i++)
         {
-            if (arcs[currentNode][i] <= 0)
+            if (_arcs[currentNode][i] <= 0)
             {
                 continue;
             }
@@ -140,18 +140,18 @@ void Network::obduct(Graph &graph, int src, int snk)
 {
     int i = 0, j = 0;
     
-    for (i = 0; i < graph.nodes; i++)
+    for (i = 0; i < graph.nodes(); i++)
     {
-        for (j = 0; j < graph.nodes; j++)
+        for (j = 0; j < graph.nodes(); j++)
         {
-            arcs[i][j] = graph.arcs[i][j];
+            _arcs[i][j] = graph.arcs(i, j);
         }
     }
     
-    for (i = 0; i < graph.nodes; i++)
+    for (i = 0; i < graph.nodes(); i++)
     {
-        arcs[i][src] = 0;
-        arcs[snk][i] = 0;
+        _arcs[i][src] = 0;
+        _arcs[snk][i] = 0;
     }
 
     source = src;
@@ -162,7 +162,7 @@ void Network::obduct(Graph &graph, int src, int snk)
 
 void Network::minimumCut(Network &minCutEdges)
 {
-    std::vector<int> visitedNodes(nodes, 0);
+    std::vector<int> visitedNodes(_nodes, 0);
     std::stack<int> toVisit;
     int currentNode = 0,
     neighbour;
@@ -177,9 +177,9 @@ void Network::minimumCut(Network &minCutEdges)
         currentNode = toVisit.top();
         toVisit.pop();
         
-        for (int i = 0; i < nodes; i++)
+        for (int i = 0; i < _nodes; i++)
         {
-            if (arcs[currentNode][i] <= 0)
+            if (_arcs[currentNode][i] <= 0)
             {
                 continue;
             }
@@ -192,13 +192,13 @@ void Network::minimumCut(Network &minCutEdges)
         }
     }
     
-    for (i = 0; i < nodes; i++)
+    for (i = 0; i < _nodes; i++)
     {
-        for (j = 0; j < nodes; j++)
+        for (j = 0; j < _nodes; j++)
         {
             if (visitedNodes[i] && !visitedNodes[j])
             {
-                minCutEdges.arcs[i][j] = 1;
+                minCutEdges._arcs[i][j] = 1;
             }
         }
     }
