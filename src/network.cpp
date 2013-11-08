@@ -13,7 +13,7 @@
 
 double Network::edmondskarp(Network &minimumCut)
 {
-    double maxFlow = 0, capacity = 0, minCapacity = 0;
+    double maxFlow = 0, capacity = 0, minCapacity = 0, newCapacity = 0;
     int i = 0, j = 0;
     Network residualNetwork = *this, flowNetwork(_nodes, source, sink);
     std::vector<int> path;
@@ -22,28 +22,36 @@ double Network::edmondskarp(Network &minimumCut)
     while (!(path = residualNetwork.shortestAugmentingPath()).empty())
     {
         /* Start with initial minimum value */
-        minCapacity = residualNetwork._arcs[*path.begin()][*(path.begin() + 1)];
+        minCapacity = residualNetwork.getArcWeight(*path.begin(), *(path.begin() + 1));
         /* Skip initial value */
         for (it = path.begin() + 1; it != path.end() - 1; it++)
         {
-            if (residualNetwork._arcs[*it][*(it + 1)] < minCapacity)
+            if (residualNetwork.getArcWeight(*it, *(it + 1)) < minCapacity)
             {
-                minCapacity = residualNetwork._arcs[*it][*(it + 1)];
+                minCapacity = residualNetwork.getArcWeight(*it, *(it + 1));
             }
         }
         /* Increase flow as much as possible */
         for (it = path.begin(); it != path.end() - 1; it++)
         {
-            flowNetwork._arcs[*it][*(it + 1)] +=  minCapacity;
-            flowNetwork._arcs[*(it + 1)][*it]  = -1 * flowNetwork._arcs[*it][*(it + 1)];
+            newCapacity = flowNetwork.getArcWeight(*it, *(it + 1)) + minCapacity;
+            flowNetwork.setArcWeight(*it, *(it + 1), newCapacity);
+            flowNetwork.setArcWeight(*(it + 1), *it, -1 * newCapacity);
         }
         /* Decrease capacity in residual network  */
         for (i = 0; i < _nodes; i++)
         {
             for (j = 0; j < _nodes; j++)
             {
-                capacity = _arcs[i][j] - flowNetwork._arcs[i][j];
-                residualNetwork._arcs[i][j] = capacity > 0 ? capacity : 0;
+                capacity = getArcWeight(i, j) - flowNetwork.getArcWeight(i, j);
+                if (capacity > 0)
+                {
+                    residualNetwork.setArcWeight(i, j, capacity);
+                }
+                else
+                {
+                    residualNetwork.removeArc(i, j);
+                }
             }
         }
     }
@@ -51,7 +59,7 @@ double Network::edmondskarp(Network &minimumCut)
     /* Calculate all the flow coming from source */
     for (i = 0; i < _nodes; i++)
     {
-        maxFlow += flowNetwork._arcs[source][i];
+        maxFlow += flowNetwork.getArcWeight(source, i);
     }
 
     /* Find blocking saturated edges or disconnected pairs of nodes */
@@ -62,9 +70,9 @@ double Network::edmondskarp(Network &minimumCut)
     {
         for (j = 0; j < _nodes; j++)
         {
-            if (_arcs[i][j] == 0)
+            if (getArcWeight(i, j) == 0)
             {
-                minimumCut._arcs[i][j] = 0;
+                minimumCut.removeArc(i, j);
             }
         }
     }
@@ -83,9 +91,8 @@ std::vector<int> Network::shortestAugmentingPath(void)
     std::queue<int> toVisit;
     std::vector<int> visitedNodes(_nodes, 0), ancestors(_nodes, 0);
     std::vector<int> reversedPath, path;
-    int currentNode = 0,
-        neighbour   = 0;
-    int i = 0;
+    int currentNode = 0;
+    NEIGHBOURLIST::iterator neigh;
     
     /* Start from the source */
     toVisit.push(source);
@@ -99,22 +106,17 @@ std::vector<int> Network::shortestAugmentingPath(void)
         currentNode = toVisit.front();
         toVisit.pop();
         
-        for (i = 0; i < _nodes; i++)
+        for (neigh = _arcs[currentNode].begin(); neigh != _arcs[currentNode].end(); neigh++)
         {
-            /* If <i> is unreachable from <currentNode> */
-            if (_arcs[currentNode][i] <= 0)
+            /* If <i> is reachable from <currentNode> */
+            if (!visitedNodes[neigh->nodeNumber])
             {
-                continue;
-            }
-            neighbour = i;
-            if (!visitedNodes[neighbour])
-            {
-                visitedNodes[neighbour] = 1;
+                visitedNodes[neigh->nodeNumber] = 1;
                 /* Write ancestor for backwards path */
-                ancestors[neighbour] = currentNode;
+                ancestors[neigh->nodeNumber] = currentNode;
                 
-                toVisit.push(neighbour);
-                if (neighbour == sink)
+                toVisit.push(neigh->nodeNumber);
+                if (neigh->nodeNumber == sink)
                 {
                     goto found;
                 }
@@ -151,16 +153,22 @@ void Network::obduct(Graph &graph, int src, int snk)
     {
         for (j = 0; j < graph.nodes(); j++)
         {
-            _arcs[i][j] = graph.arcs(i, j);
+            if (graph.getArcWeight(i, j))
+            {
+                setArcWeight(i, j, graph.getArcWeight(i, j));
+            }
         }
     }
     
+    print();
+    
     for (i = 0; i < graph.nodes(); i++)
     {
-        _arcs[i][src] = 0;
-        _arcs[snk][i] = 0;
+        removeArc(i, src);
+        removeArc(snk, i);
     }
 
+    print();
     source = src;
     sink = snk;
 }
@@ -169,9 +177,9 @@ void Network::minimumCut(Network &minCutEdges)
 {
     std::vector<int> visitedNodes(_nodes, 0);
     std::stack<int> toVisit;
-    int currentNode = 0,
-        neighbour   = 0;
+    int currentNode = 0;
     int i = 0, j = 0;
+    NEIGHBOURLIST::iterator neigh;
     
     /* Start from source */
     visitedNodes[source] = 1;
@@ -182,18 +190,14 @@ void Network::minimumCut(Network &minCutEdges)
         currentNode = toVisit.top();
         toVisit.pop();
         
-        for (int i = 0; i < _nodes; i++)
+        for (neigh = _arcs[currentNode].begin(); neigh != _arcs[currentNode].end(); neigh++)
         {
-            /* If <i> is unreachable from <currentNode> */
-            if (_arcs[currentNode][i] <= 0)
+            /* If <i> is reachable from <currentNode> */
+            if (!visitedNodes[neigh->nodeNumber])
             {
-                continue;
-            }
-            neighbour = i;
-            if (!visitedNodes[neighbour])
-            {
-                visitedNodes[neighbour] = 1;
-                toVisit.push(neighbour);
+                visitedNodes[neigh->nodeNumber] = 1;
+                toVisit.push(neigh->nodeNumber);
+
             }
         }
     }
@@ -205,7 +209,7 @@ void Network::minimumCut(Network &minCutEdges)
         {
             if (visitedNodes[i] && !visitedNodes[j])
             {
-                minCutEdges._arcs[i][j] = 1;
+                minCutEdges.setArcWeight(i, j, 1);
             }
         }
     }

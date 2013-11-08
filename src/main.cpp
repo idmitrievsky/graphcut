@@ -19,10 +19,14 @@ int main(int argc, const char * argv[])
     Network associatedNetwork(NODESNUM, 0, 8);
     Network minimumCutEdges(NODESNUM, 0, 8);
     
-    undirected.test();
+    undirected.testFillUp();
 
+    undirected.print();
+    
     associatedNetwork.obduct(undirected, 0, 8);
 
+    associatedNetwork.print();
+    
     maxFlow = associatedNetwork.edmondskarp(minimumCutEdges);
     
     minimumCutEdges.print();

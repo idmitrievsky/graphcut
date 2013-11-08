@@ -9,17 +9,29 @@
 #ifndef __graphcut__graph__
 #define __graphcut__graph__
 
+#include <forward_list>
+
+#define NEIGHBOURLIST std::forward_list<Neighbour>
+
+struct Neighbour
+{
+    int nodeNumber;
+    double arcWeight;
+};
+
 class Graph
 {
 protected:
     int _nodes;
     double *intencities;
-    double **_arcs;
+    NEIGHBOURLIST *_arcs;
     
 public:
     /* Getters */
     int nodes(void);
-    double arcs(int i, int j);
+    double getArcWeight(int i, int j);
+    void setArcWeight(int i, int j, double weight);
+    void removeArc(int i, int j);
     
     /* Constructors and destructors */
     Graph(int _nodes);
