@@ -7,29 +7,34 @@
 //
 
 #include <iostream>
+#include <opencv2/core/core.hpp>
+#include <opencv2/highgui/highgui.hpp>
 #include "network.h"
+#include "partition.h"
 
 #define NODESNUM 9
 
 int main(int argc, const char * argv[])
 {
-    double maxFlow = 0;
-    Graph undirected(NODESNUM);
+    int pixels = 0;
     
-    Network associatedNetwork(NODESNUM, 0, 8);
-    Network minimumCutEdges(NODESNUM, 0, 8);
+    Network *associatedNetwork;
     
-    undirected.testFillUp();
-
-    undirected.print();
+    Partition *currentPartition, *mutated;
     
-    associatedNetwork.obduct(undirected, 0, 8);
-
-    associatedNetwork.print();
+    cv::Mat image = cv::imread(argv[1], 0);
     
-    maxFlow = associatedNetwork.edmondskarp(minimumCutEdges);
+    pixels = image.rows * image.cols;
     
-    minimumCutEdges.print();
+    currentPartition = new Partition(pixels);
+    mutated = new Partition(pixels);
+    
+    associatedNetwork = new Network(pixels);
+    
+    while (currentPartition->mutate(*associatedNetwork, image.cols, *mutated))
+    {
+        currentPartition = mutated;
+    }
     
     return 0;
 }
