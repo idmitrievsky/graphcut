@@ -102,11 +102,9 @@ int Partition::mutate(Network &img, int cols, Partition &mutated)
     
     for (i = 1; i < img.nodes() - 1; i++)
     {
-        if (i != img.source() && i != img.sink())
-        {
-            img.setArcWeight(img.source(), i, local(FOREGROUND, img.nodeIntencity(i)));
-            img.setArcWeight(i, img.sink(), local(BACKGROUND, img.nodeIntencity(i)));
-        }
+        img.setArcWeight(img.source(), i, local(FOREGROUND, img.nodeIntencity(i)));
+        img.setArcWeight(i, img.sink(), local(BACKGROUND, img.nodeIntencity(i)));
+        
         if ((neighbour = i - cols) > 0)
         {
             img.setArcWeight(neighbour, i, boundary(i - 1, neighbour - 1));
@@ -129,7 +127,7 @@ int Partition::mutate(Network &img, int cols, Partition &mutated)
         }
     }
     
-    img.edmondskarp(minimumCut);
+    t = img.edmondskarp(minimumCut);
     
     for (i = 1; i < img.nodes() - 1; i++)
     {

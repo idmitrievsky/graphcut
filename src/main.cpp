@@ -17,12 +17,15 @@
 int main(int argc, const char * argv[])
 {
     int pixels = 0;
+    int i = 0, j = 0;
+    double temp;
     
     Network *associatedNetwork;
     
     Partition *currentPartition, *mutated;
     
-    cv::Mat image = cv::imread(argv[1], 0);
+    cv::Mat image = cv::imread(argv[1], CV_LOAD_IMAGE_GRAYSCALE);
+    
     
     pixels = image.rows * image.cols;
     
@@ -30,6 +33,14 @@ int main(int argc, const char * argv[])
     mutated = new Partition(pixels);
     
     associatedNetwork = new Network(pixels);
+    for (i = 0; i < image.rows; i++)
+    {
+        for (j = 0; j < image.cols; j++)
+        {
+            temp = image.at<uchar>(i, j);
+            associatedNetwork->setNodeIntencity(i * image.cols + j, image.at<uchar>(i, j));
+        }
+    }
     
     while (currentPartition->mutate(*associatedNetwork, image.cols, *mutated))
     {
