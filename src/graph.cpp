@@ -21,6 +21,11 @@ double Graph::nodeIntencity(int i)
     return _intencities[i];
 }
 
+void Graph::setNodeIntencity(int i, double intencity)
+{
+    _intencities[i] = intencity;
+}
+
 double Graph::getArcWeight(int i, int j)
 {
     NEIGHBOURLIST::iterator neigh;

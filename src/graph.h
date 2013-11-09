@@ -30,6 +30,7 @@ public:
     /* Getters */
     int nodes(void);
     double nodeIntencity(int i);
+    void setNodeIntencity(int i, double intencity);
     double getArcWeight(int i, int j);
     void setArcWeight(int i, int j, double weight);
     void removeArc(int i, int j);
