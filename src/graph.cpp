@@ -9,7 +9,6 @@
 #include <vector>
 #include <queue>
 #include <iostream>
-#include <algorithm>
 #include "graph.h"
 
 int Graph::nodes(void)
