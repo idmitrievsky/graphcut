@@ -17,6 +17,11 @@ int Graph::nodes(void)
     return _nodes;
 }
 
+double Graph::nodeIntencity(int i)
+{
+    return _intencities[i];
+}
+
 double Graph::getArcWeight(int i, int j)
 {
     NEIGHBOURLIST::iterator neigh;
@@ -66,11 +71,17 @@ void Graph::setArcWeight(int i, int j, double weight)
 
 Graph::Graph(int nodesNumber)
 {
+    int i = 0;
+    
     _nodes = nodesNumber;
     
     _arcs = new NEIGHBOURLIST [_nodes];
+    _intencities = new double[_nodes];
     
-    print();
+    for (i = 0; i < _nodes; i++)
+    {
+        _intencities[i] = 0;
+    }
 }
 
 Graph::Graph(const Graph&graph)
@@ -78,10 +89,12 @@ Graph::Graph(const Graph&graph)
     _nodes = graph._nodes;
     
     _arcs = new NEIGHBOURLIST [_nodes];
+    _intencities = new double[_nodes];
     
     for (int i = 0; i < _nodes; i++)
     {
-            _arcs[i] = graph._arcs[i];
+        _arcs[i] = graph._arcs[i];
+        _intencities[i] = graph._intencities[i];
     }
 }
 
@@ -94,6 +107,7 @@ Graph & Graph::operator = (const Graph &graph)
         for (int i = 0; i < _nodes; i++)
         {
             _arcs[i] = graph._arcs[i];
+            _intencities[i] = graph._intencities[i];
         }
     }
     
@@ -104,6 +118,7 @@ Graph & Graph::operator = (const Graph &graph)
 Graph::~Graph(void)
 {
     delete [] _arcs;
+    delete _intencities;
 }
 
 void Graph::testFillUp(void)
@@ -152,6 +167,7 @@ void Graph::erase(void)
     for (i = 0; i < _nodes; i++)
     {
         _arcs[i].clear();
+        _intencities[i] = 0;
     }
 }
 

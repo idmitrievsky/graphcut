@@ -15,7 +15,7 @@ double Network::edmondskarp(Network &minimumCut)
 {
     double maxFlow = 0, capacity = 0, minCapacity = 0, newCapacity = 0;
     int i = 0, j = 0;
-    Network residualNetwork = *this, flowNetwork(_nodes, source, sink);
+    Network residualNetwork = *this, flowNetwork(_nodes, _source, _sink);
     std::vector<int> path;
     std::vector<int>::iterator it;
     
@@ -59,7 +59,7 @@ double Network::edmondskarp(Network &minimumCut)
     /* Calculate all the flow coming from source */
     for (i = 0; i < _nodes; i++)
     {
-        maxFlow += flowNetwork.getArcWeight(source, i);
+        maxFlow += flowNetwork.getArcWeight(_source, i);
     }
 
     /* Find blocking saturated edges or disconnected pairs of nodes */
@@ -80,10 +80,26 @@ double Network::edmondskarp(Network &minimumCut)
     return maxFlow;
 }
 
-Network::Network(int nodesNum, int _source, int _sink):Graph(nodesNum)
+int Network::source(void)
 {
-    source = _source;
-    sink = _sink;
+    return _source;
+}
+
+int Network::sink(void)
+{
+    return _sink;
+}
+
+Network::Network(int nodesNum, int source, int sink):Graph(nodesNum)
+{
+    _source = source;
+    _sink = sink;
+}
+
+Network::Network(int pixels):Graph(pixels + 2)
+{
+    _source = 0;
+    _sink = pixels + 1;
 }
 
 std::vector<int> Network::shortestAugmentingPath(void)
@@ -95,11 +111,11 @@ std::vector<int> Network::shortestAugmentingPath(void)
     NEIGHBOURLIST::iterator neigh;
     
     /* Start from the source */
-    toVisit.push(source);
-    visitedNodes[source] = 1;
+    toVisit.push(_source);
+    visitedNodes[_source] = 1;
     
     /* Source don't have any ancestors */
-    ancestors[source] = -1;
+    ancestors[_source] = -1;
     
     while (!toVisit.empty())
     {
@@ -116,7 +132,7 @@ std::vector<int> Network::shortestAugmentingPath(void)
                 ancestors[neigh->nodeNumber] = currentNode;
                 
                 toVisit.push(neigh->nodeNumber);
-                if (neigh->nodeNumber == sink)
+                if (neigh->nodeNumber == _sink)
                 {
                     goto found;
                 }
@@ -132,7 +148,7 @@ std::vector<int> Network::shortestAugmentingPath(void)
     
 found:
     /* Start from the sink */
-    currentNode = sink;
+    currentNode = _sink;
     /* Make up a path */
     while (currentNode != -1)
     {
@@ -169,8 +185,8 @@ void Network::obduct(Graph &graph, int src, int snk)
     }
 
     print();
-    source = src;
-    sink = snk;
+    _source = src;
+    _sink = snk;
 }
 
 void Network::minimumCut(Network &minCutEdges)
@@ -182,8 +198,8 @@ void Network::minimumCut(Network &minCutEdges)
     NEIGHBOURLIST::iterator neigh;
     
     /* Start from source */
-    visitedNodes[source] = 1;
-    toVisit.push(source);
+    visitedNodes[_source] = 1;
+    toVisit.push(_source);
     
     while (!toVisit.empty())
     {

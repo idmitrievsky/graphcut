@@ -23,12 +23,13 @@ class Graph
 {
 protected:
     int _nodes;
-    double *intencities;
+    double *_intencities;
     NEIGHBOURLIST *_arcs;
     
 public:
     /* Getters */
     int nodes(void);
+    double nodeIntencity(int i);
     double getArcWeight(int i, int j);
     void setArcWeight(int i, int j, double weight);
     void removeArc(int i, int j);

@@ -14,10 +14,14 @@
 
 class Network : public Graph
 {
-    int source, sink;
+    int _source, _sink;
     
 public:
+    int source(void);
+    int sink(void);
+    
     Network(int nodesNum, int _source, int _sink);
+    Network(int pixels);
     
     /* Make a valid network from undirected graph*/
     void obduct(Graph &graph, int src, int snk);
