@@ -23,19 +23,17 @@ class Graph
 {
 protected:
     int _nodes;
-    double *_intencities;
     NEIGHBOURLIST *_arcs;
     
 public:
     /* Getters */
     int nodes(void);
-    double nodeIntencity(int i);
-    void setNodeIntencity(int i, double intencity);
     double getArcWeight(int i, int j);
     void setArcWeight(int i, int j, double weight);
     void removeArc(int i, int j);
     
     /* Constructors and destructors */
+    Graph(void);
     Graph(int _nodes);
     Graph(const Graph &graph);
     ~Graph();
@@ -44,6 +42,8 @@ public:
     Graph & operator = (const Graph &graph);
     
     /* Methods */
+    int isEmpty(void);
+    void init(int nodesNumber);
     void testFillUp(void);
     void erase(void);
     void print(void);

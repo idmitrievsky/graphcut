@@ -11,24 +11,28 @@
 
 #include "network.h"
 
+enum Label
+{
+    BACKGROUND,
+    FOREGROUND
+};
+
 class Partition
 {
     int nodesNum;
-    int *labels;
+    Label *labels;
     
 public:
     Partition(int nodes);
+    Partition(const Partition &partition);
     ~Partition(void);
     
     /* Operators */
     Partition & operator = (const Partition &partition);
+    Label operator [](int i) const;
     
-    int label(int node);
-    void setLabel(int node, int label);
-    int mutate(Network &image, int cols, Partition &mutated);
-    double boundary(int p, int q);
-    double local(int p, double intencity);
-    double energy(Network &img, int cols);
+    Label label(int node);
+    void setLabel(int node, Label label);
 };
 
 #endif /* defined(__graphcut__partition__) */
