@@ -14,9 +14,6 @@
 #include "network.h"
 #include "partition.h"
 
-typedef int graphIndex;
-typedef int partitionIndex;
-
 class ImageNetwork : Network
 {
     cv::Mat *image;

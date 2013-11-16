@@ -13,6 +13,8 @@
 
 #define NEIGHBOURLIST std::forward_list<Neighbour>
 
+typedef int graphIndex;
+
 struct Neighbour
 {
     int nodeNumber;
@@ -28,9 +30,9 @@ protected:
 public:
     /* Getters */
     int nodes(void);
-    double getArcWeight(int i, int j);
-    void setArcWeight(int i, int j, double weight);
-    void removeArc(int i, int j);
+    double getArcWeight(graphIndex i, graphIndex j);
+    void setArcWeight(graphIndex i, graphIndex j, double weight);
+    void removeArc(graphIndex i, graphIndex j);
     
     /* Constructors and destructors */
     Graph(void);

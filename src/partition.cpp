@@ -9,12 +9,12 @@
 #include <math.h>
 #include "partition.h"
 
-Label Partition::label(int node)
+Label Partition::label(partitionIndex node)
 {
     return labels[node];
 }
 
-void Partition::setLabel(int node, Label label)
+void Partition::setLabel(partitionIndex node, Label label)
 {
     labels[node] = label;
 }
@@ -64,7 +64,7 @@ Partition & Partition::operator = (const Partition &partition)
     return *this;
 }
 
-Label Partition::operator [](int i) const
+Label Partition::operator [](partitionIndex i) const
 {
     return labels[i];
 }

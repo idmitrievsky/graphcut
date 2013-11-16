@@ -17,6 +17,8 @@ enum Label
     FOREGROUND
 };
 
+typedef int partitionIndex;
+
 class Partition
 {
     int nodesNum;
@@ -29,10 +31,10 @@ public:
     
     /* Operators */
     Partition & operator = (const Partition &partition);
-    Label operator [](int i) const;
+    Label operator [](partitionIndex i) const;
     
-    Label label(int node);
-    void setLabel(int node, Label label);
+    Label label(partitionIndex node);
+    void setLabel(partitionIndex node, Label label);
 };
 
 #endif /* defined(__graphcut__partition__) */

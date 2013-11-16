@@ -16,7 +16,7 @@ int Graph::nodes(void)
     return _nodes;
 }
 
-double Graph::getArcWeight(int i, int j)
+double Graph::getArcWeight(graphIndex i, graphIndex j)
 {
     NEIGHBOURLIST::iterator neigh;
     int found = 0;
@@ -38,7 +38,7 @@ double Graph::getArcWeight(int i, int j)
     return 0;
 }
 
-void Graph::setArcWeight(int i, int j, double weight)
+void Graph::setArcWeight(graphIndex i, graphIndex j, double weight)
 {
     NEIGHBOURLIST::iterator neigh;
     int found = 0;
@@ -193,7 +193,7 @@ void Graph::print(void)
     std::cout << std::endl << std::endl;
 }
 
-void Graph::removeArc(int i, int j)
+void Graph::removeArc(graphIndex i, graphIndex j)
 {
     NEIGHBOURLIST::iterator neigh, prev;
     int found = 0;
