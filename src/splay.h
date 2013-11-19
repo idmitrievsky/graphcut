@@ -9,25 +9,25 @@
 #ifndef __graphcut__splay__
 #define __graphcut__splay__
 
-#include <functional>
-
-template< typename T, typename Comp = std::less< T > >
+template <class T>
 class SplayTree {
-private:
-    Comp comp;
+public:
+    struct TreeNode
+    {
+        TreeNode *left, *right;
+        TreeNode *parent;
+        double key;
+        T *element;
+        TreeNode(const double& init = double()) : left(0), right(0), parent(0), key(init), element(0) { }
+    };
+protected:
     unsigned long _size;
     
-    struct TrNode
-    {
-        TrNode *left, *right;
-        TrNode *parent;
-        T key;
-        TrNode(const T& init = T()) : left(0), right(0), parent(0), key(init) { }
-    } *root;
+    TreeNode *root;
     
-    void leftRotate(TrNode *x)
+    void leftRotate(TreeNode *x)
     {
-        TrNode *y = x->right;
+        TreeNode *y = x->right;
         x->right = y->left;
         if (y->left)
             y->left->parent = x;
@@ -44,9 +44,9 @@ private:
         x->parent = y;
     }
     
-    void rightRotate(TrNode *x)
+    void rightRotate(TreeNode *x)
     {
-        TrNode *y = x->left;
+        TreeNode *y = x->left;
         x->left = y->right;
         if (y->right)
             y->right->parent = x;
@@ -63,7 +63,96 @@ private:
         x->parent = y;
     }
     
-    void splay(TrNode *x) {
+    TreeNode *findNode(const double &key)
+    {
+        TreeNode *z = root;
+        while (z)
+        {
+            if(z->key < key)
+                z = z->right;
+            else if (key < z->key)
+                z = z->left;
+            else
+                return z;
+        }
+        return 0;
+    }
+    
+    void replace(TreeNode *u, TreeNode *v)
+    {
+        if (!u->parent)
+            root = v;
+        else if (u == u->parent->left)
+            u->parent->left = v;
+        else
+            u->parent->right = v;
+        
+        if (v)
+            v->parent = u->parent;
+    }
+    
+    TreeNode* subtreeMinimum(TreeNode *u)
+    {
+        while (u->left)
+            u = u->left;
+        return u;
+    }
+    
+    TreeNode* subtreeMaximum(TreeNode *u)
+    {
+        while (u->right)
+            u = u->right;
+        return u;
+    }
+public:
+    SplayTree() : root(0), _size(0) { }
+    
+    void insert(const double &key, T *element)
+    {
+        TreeNode *z = root;
+        TreeNode *p = 0;
+        
+        while (z)
+        {
+            p = z;
+            if (z->key < key)
+                z = z->right;
+            else
+                z = z->left;
+        }
+        
+        z = new TreeNode(key);
+        z->element = element;
+        z->parent = p;
+        
+        if (!p)
+            root = z;
+        else if (p->key < z->key)
+            p->right = z;
+        else
+            p->left = z;
+        
+        splay(z);
+        _size++;
+    }
+    
+    T *find(const double &key)
+    {
+        TreeNode *z = root;
+        while (z)
+        {
+            if(z->key < key)
+                z = z->right;
+            else if (key < z->key)
+                z = z->left;
+            else
+                return z->element;
+        }
+        return 0;
+    }
+    
+    void splay(TreeNode *x)
+    {
         while(x->parent)
         {
             if (!x->parent->parent)
@@ -97,81 +186,9 @@ private:
         }
     }
     
-    void replace(TrNode *u, TrNode *v)
+    void erase(const double &key)
     {
-        if (!u->parent)
-            root = v;
-        else if (u == u->parent->left)
-            u->parent->left = v;
-        else
-            u->parent->right = v;
-        
-        if (v)
-            v->parent = u->parent;
-    }
-    
-    TrNode* subtreeMinimum(TrNode *u)
-    {
-        while (u->left)
-            u = u->left;
-        return u;
-    }
-    
-    TrNode* subtreeMaximum(TrNode *u)
-    {
-        while (u->right)
-            u = u->right;
-        return u;
-    }
-public:
-    SplayTree() : root(0), _size(0) { }
-    
-    void insert(const T &key)
-    {
-        TrNode *z = root;
-        TrNode *p = 0;
-        
-        while (z)
-        {
-            p = z;
-            if (comp(z->key, key))
-                z = z->right;
-            else
-                z = z->left;
-        }
-        
-        z = new TrNode(key);
-        z->parent = p;
-        
-        if (!p)
-            root = z;
-        else if (comp(p->key, z->key))
-            p->right = z;
-        else
-            p->left = z;
-        
-        splay(z);
-        _size++;
-    }
-    
-    TrNode* find(const T &key)
-    {
-        TrNode *z = root;
-        while (z)
-        {
-            if(comp(z->key, key))
-                z = z->right;
-            else if (comp(key, z->key))
-                z = z->left;
-            else
-                return z;
-        }
-        return 0;
-    }
-    
-    void erase(const T &key)
-    {
-        TrNode *z = find(key);
+        TreeNode *z = findNode(key);
         if (!z)
             return;
         
@@ -183,7 +200,7 @@ public:
             replace(z, z->left);
         else
         {
-            TrNode *y = subtreeMinimum(z->right);
+            TreeNode *y = subtreeMinimum(z->right);
             if (y->parent != z)
             {
                 replace(y, y->right);
@@ -198,8 +215,8 @@ public:
         _size--;
     }
     
-    const T& minimum() { return subtreeMinimum(root)->key; }
-    const T& maximum() { return subtreeMaximum(root)->key; }
+    const double& minimum() { return subtreeMinimum(root)->key; }
+    const double& maximum() { return subtreeMaximum(root)->key; }
     
     bool empty() const { return root == 0; }
     unsigned long size() const { return _size; }
