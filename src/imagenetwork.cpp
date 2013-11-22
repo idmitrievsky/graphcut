@@ -86,9 +86,11 @@ void ImageNetwork::outputPartition(char *outPath)
     {
         for (j = 0; j < image->cols; j++)
         {
-            out.at<uchar>(i, j) = partition->label(pixelGraphIndex(i, j) - 1);
+            out.at<uchar>(i, j) = 255 * partition->label(pixelPartitionIndex(i, j));
         }
     }
+    
+    out = out > 127;
     
     cv::imwrite(outPath, out);
 }
