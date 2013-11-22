@@ -7,29 +7,15 @@
 //
 
 #include <iostream>
-#include "network.h"
+#include "imagenetwork.h"
 
 #define NODESNUM 9
 
 int main(int argc, const char * argv[])
 {
-    double maxFlow = 0;
-    Graph undirected(NODESNUM);
+    ImageNetwork image(argv[1]);
     
-    Network associatedNetwork(NODESNUM, 0, 8);
-    Network minimumCutEdges(NODESNUM, 0, 8);
-    
-    undirected.testFillUp();
-
-    undirected.print();
-    
-    associatedNetwork.obduct(undirected, 0, 8);
-
-    associatedNetwork.print();
-    
-    maxFlow = associatedNetwork.edmondskarp(minimumCutEdges);
-    
-    minimumCutEdges.print();
+    while (image.repart());
     
     return 0;
 }

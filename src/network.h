@@ -14,6 +14,7 @@
 
 class Network : public Graph
 {
+protected:
     int _source, _sink;
     
 public:
@@ -21,7 +22,7 @@ public:
     int sink(void);
     
     Network(int nodesNum, int _source, int _sink);
-    Network(int pixels);
+    Network(void);
     
     /* Make a valid network from undirected graph*/
     void obduct(Graph &graph, int src, int snk);

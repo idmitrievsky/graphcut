@@ -9,7 +9,6 @@
 #include <vector>
 #include <queue>
 #include <iostream>
-#include <algorithm>
 #include "graph.h"
 
 int Graph::nodes(void)
@@ -17,12 +16,7 @@ int Graph::nodes(void)
     return _nodes;
 }
 
-double Graph::nodeIntencity(int i)
-{
-    return _intencities[i];
-}
-
-double Graph::getArcWeight(int i, int j)
+double Graph::getArcWeight(graphIndex i, graphIndex j)
 {
     NEIGHBOURLIST::iterator neigh;
     int found = 0;
@@ -44,7 +38,7 @@ double Graph::getArcWeight(int i, int j)
     return 0;
 }
 
-void Graph::setArcWeight(int i, int j, double weight)
+void Graph::setArcWeight(graphIndex i, graphIndex j, double weight)
 {
     NEIGHBOURLIST::iterator neigh;
     int found = 0;
@@ -71,17 +65,34 @@ void Graph::setArcWeight(int i, int j, double weight)
 
 Graph::Graph(int nodesNumber)
 {
-    int i = 0;
+    _nodes = nodesNumber;
+    
+    _arcs = new NEIGHBOURLIST [_nodes];
+}
+
+Graph::Graph(void)
+{
+    _nodes = 0;
+    
+    _arcs = NULL;
+}
+
+int Graph::isEmpty(void)
+{
+    return !!_nodes;
+}
+
+void Graph::init(int nodesNumber)
+{
+    if (_nodes)
+    {
+        _nodes = 0;
+        delete [] _arcs;
+    }
     
     _nodes = nodesNumber;
     
     _arcs = new NEIGHBOURLIST [_nodes];
-    _intencities = new double[_nodes];
-    
-    for (i = 0; i < _nodes; i++)
-    {
-        _intencities[i] = 0;
-    }
 }
 
 Graph::Graph(const Graph&graph)
@@ -89,12 +100,10 @@ Graph::Graph(const Graph&graph)
     _nodes = graph._nodes;
     
     _arcs = new NEIGHBOURLIST [_nodes];
-    _intencities = new double[_nodes];
     
     for (int i = 0; i < _nodes; i++)
     {
         _arcs[i] = graph._arcs[i];
-        _intencities[i] = graph._intencities[i];
     }
 }
 
@@ -107,7 +116,6 @@ Graph & Graph::operator = (const Graph &graph)
         for (int i = 0; i < _nodes; i++)
         {
             _arcs[i] = graph._arcs[i];
-            _intencities[i] = graph._intencities[i];
         }
     }
     
@@ -118,7 +126,6 @@ Graph & Graph::operator = (const Graph &graph)
 Graph::~Graph(void)
 {
     delete [] _arcs;
-    delete _intencities;
 }
 
 void Graph::testFillUp(void)
@@ -167,7 +174,6 @@ void Graph::erase(void)
     for (i = 0; i < _nodes; i++)
     {
         _arcs[i].clear();
-        _intencities[i] = 0;
     }
 }
 
@@ -187,7 +193,7 @@ void Graph::print(void)
     std::cout << std::endl << std::endl;
 }
 
-void Graph::removeArc(int i, int j)
+void Graph::removeArc(graphIndex i, graphIndex j)
 {
     NEIGHBOURLIST::iterator neigh, prev;
     int found = 0;

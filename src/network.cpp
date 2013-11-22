@@ -96,10 +96,10 @@ Network::Network(int nodesNum, int source, int sink):Graph(nodesNum)
     _sink = sink;
 }
 
-Network::Network(int pixels):Graph(pixels + 2)
+Network::Network(void)
 {
     _source = 0;
-    _sink = pixels + 1;
+    _sink = 0;
 }
 
 std::vector<int> Network::shortestAugmentingPath(void)
