@@ -63,7 +63,7 @@ ImageNetwork::ImageNetwork(const char *imagePath)
     {
         for (j = 0; j < image->cols; j++)
         {
-            _intensities[1 + i * image->cols + j] = image->at<uchar>(i, j);
+            _intensities[pixelGraphIndex(i, j)] = image->at<uchar>(i, j);
         }
     }
     _intensities[0] = _intensities[pixels + 1] = 0;
@@ -75,6 +75,22 @@ ImageNetwork::~ImageNetwork(void)
 {
     delete image;
     delete [] _intensities;
+}
+
+void ImageNetwork::outputPartition(char *outPath)
+{
+    cv::Mat out(image->rows, image->cols, CV_8UC1);
+    int i = 0, j = 0;
+    
+    for (i = 0; i < image->rows; i++)
+    {
+        for (j = 0; j < image->cols; j++)
+        {
+            out.at<uchar>(i, j) = partition->label(pixelGraphIndex(i, j) - 1);
+        }
+    }
+    
+    cv::imwrite(outPath, out);
 }
 
 double ImageNetwork::nodeIntensity(int i)

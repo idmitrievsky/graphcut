@@ -38,6 +38,8 @@ public:
     double boundaryTerm(graphIndex p, Label pLabel, graphIndex q, Label qLabel);
     double localTerm(graphIndex p, Label pLabel);
     double energy(Partition *p);
+    
+    void outputPartition(char *outPath);
 };
 
 #endif /* defined(__graphcut__imagenetwork__) */
