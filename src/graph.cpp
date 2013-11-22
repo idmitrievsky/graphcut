@@ -77,7 +77,7 @@ Graph::Graph(void)
     _arcs = NULL;
 }
 
-int Graph::isEmpty(void)
+int Graph::empty(void)
 {
     return !!_nodes;
 }

@@ -44,7 +44,7 @@ public:
     Graph & operator = (const Graph &graph);
     
     /* Methods */
-    int isEmpty(void);
+    int empty(void);
     void init(int nodesNumber);
     void testFillUp(void);
     void erase(void);
