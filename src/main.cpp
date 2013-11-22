@@ -14,8 +14,11 @@
 int main(int argc, const char * argv[])
 {
     ImageNetwork image(argv[1]);
+    char outPath[] = "/Users/ivan/.supp/code/graphcut/out.jpg";
     
     while (image.repart());
+    
+    image.outputPartition(outPath);
     
     return 0;
 }
