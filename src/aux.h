@@ -10,98 +10,140 @@
 #define __graphcut__splay__
 
 template <class T>
-struct TreeNode
+struct Aux
 {
-    TreeNode<T> *pathParent;
-    TreeNode<T> *left, *right;
-    TreeNode<T> *parent;
-    double key;
+    Aux<T> *pathParent;
+    Aux<T> *left, *right;
+    Aux<T> *parent;
+    int key;
     T *element;
-    TreeNode<T>(const double& init = double()) : left(0), right(0), parent(0), key(init), element(0), pathParent(0) { }
+    Aux<T>(T *el, int init = 0) : left(0), right(0), parent(0), key(init), element(el), pathParent(0) { }
+
+    Aux<T>*  splay(void);
+    Aux<T>*  rightRotate(void);
+    Aux<T>*  leftRotate(void);
+    Aux<T>* subtreeMinimum(void);
+    Aux<T>* subtreeMaximum(void);
+    Aux<T>* findNode(const int key);
+    void replace(Aux<T> *v);
+    Aux<T>*  insert(const int key, T *element);
+    T *find(const int key);
+    void erase(const int key);
 };
 
 template <class T>
-class AuxTree
+Aux<T>*  Aux<T>::splay(void)
 {
-    
-protected:
-    unsigned long _size;
-    TreeNode<T> *root;
-    
-    void leftRotate(TreeNode<T> *x);
-    void rightRotate(TreeNode<T> *x);
-    TreeNode<T> *findNode(const double &key);
-    void replace(TreeNode<T> *u, TreeNode<T> *v);
-    TreeNode<T>* subtreeMinimum(TreeNode<T> *u);
-    TreeNode<T>* subtreeMaximum(TreeNode<T> *u);
-    
-public:
-    AuxTree() : root(0), _size(0) { }
-    
-    void insert(const double &key, T *element);
-    T *find(const double &key);
-    void splay(TreeNode<T> *x);
-    void erase(const double &key);
-    
-    const double& minimum() { return subtreeMinimum(root)->key; }
-    const double& maximum() { return subtreeMaximum(root)->key; }
-    
-    bool empty() const { return root == 0; }
-    unsigned long size() const { return _size; }
-};
+    Aux<T>* x = this;
+    Aux<T>* temp = 0;
 
-/* Protected methods */
+    while (x->parent)
+    {
+        if (!x->parent->parent)
+        {
+            if (x->parent->left == x)
+            {
+                x = x->parent->rightRotate();
+            }
+            else
+            {
+                x = x->parent->leftRotate();
+            }
+        }
+        else if (x->parent->left == x && x->parent->parent->left == x->parent)
+        {
+            temp = x->parent->parent->rightRotate();
+            x = temp->parent->rightRotate();
+        }
+        else if (x->parent->right == x && x->parent->parent->right == x->parent)
+        {
+            temp = x->parent->parent->leftRotate();
+            x = temp->parent->leftRotate();
+        }
+        else if (x->parent->left == x && x->parent->parent->right == x->parent)
+        {
+            x = x->parent->rightRotate();
+            x = x->parent->leftRotate();
+        }
+        else
+        {
+            x = x->parent->leftRotate();
+            x = x->parent->rightRotate();
+        }
+    }
+    return x;
+}
 
 template <class T>
-void AuxTree<T>::leftRotate(TreeNode<T> *x)
+Aux<T>*  Aux<T>::leftRotate(void)
 {
-    TreeNode<T> *y = x->right;
-    x->right = y->left;
+    Aux<T> *y = right;
+    right = y->left;
     if (y->left)
-        y->left->parent = x;
-    
-    y->parent = x->parent;
-    if(!x->parent)
+        y->left->parent = this;
+
+    y->parent = parent;
+    if (!parent)
     {
-        root = y;
-        y->pathParent = x->pathParent;
+        y->pathParent = pathParent;
     }
-    else if (x == x->parent->left)
-        x->parent->left = y;
+    else if (this == parent->left)
+        parent->left = y;
     else
-        x->parent->right = y;
-    
-    y->left = x;
-    x->parent = y;
+        parent->right = y;
+
+    y->left = this;
+    parent = y;
+    return y;
 }
 
 template <class T>
-void AuxTree<T>::rightRotate(TreeNode<T> *x)
+Aux<T>*  Aux<T>::rightRotate(void)
 {
-    TreeNode<T> *y = x->left;
-    x->left = y->right;
+    Aux<T> *y = left;
+    left = y->right;
     if (y->right)
-        y->right->parent = x;
-    
-    y->parent = x->parent;
-    if (!x->parent)
+        y->right->parent = this;
+
+    y->parent = parent;
+    if (!parent)
     {
-        root = y;
-        y->pathParent = x->pathParent;
+        y->pathParent = pathParent;
     }
-    else if (x == x->parent->left)
-        x->parent->left = y;
+    else if (this == parent->left)
+        parent->left = y;
     else
-        x->parent->right = y;
-    
-    y->right = x;
-    x->parent = y;
+        parent->right = y;
+
+    y->right = this;
+    parent = y;
+    return y;
 }
 
 template <class T>
-TreeNode<T> *AuxTree<T>::findNode(const double &key)
+Aux<T>* Aux<T>::subtreeMinimum(void)
 {
-    TreeNode<T> *z = root;
+    Aux<T> *u = this;
+
+    while (u->left)
+        u = u->left;
+    return u;
+}
+
+template <class T>
+Aux<T>* Aux<T>::subtreeMaximum(void)
+{
+    Aux<T> *u = this;
+
+    while (u->right)
+        u = u->right;
+    return u;
+}
+
+template <class T>
+Aux<T> *Aux<T>::findNode(const int key)
+{
+    Aux<T> *z = this;
     while (z)
     {
         if(z->key < key)
@@ -115,46 +157,28 @@ TreeNode<T> *AuxTree<T>::findNode(const double &key)
 }
 
 template <class T>
-void AuxTree<T>::replace(TreeNode<T> *u, TreeNode<T> *v)
+void Aux<T>::replace(Aux<T> *v)
 {
-    if (!u->parent)
+    assert(v);
+    if (!parent)
     {
-        root = v;
-        v->pathParent = u->pathParent;
+        v->pathParent = pathParent;
     }
-    else if (u == u->parent->left)
-        u->parent->left = v;
+    else if (this == parent->left)
+        parent->left = v;
     else
-        u->parent->right = v;
-    
-    if (v)
-        v->parent = u->parent;
+        parent->right = v;
+
+    v->parent = parent;
 }
 
 template <class T>
-TreeNode<T>* AuxTree<T>::subtreeMinimum(TreeNode<T> *u)
+Aux<T> *Aux<T>::insert(const int key, T *element)
 {
-    while (u->left)
-        u = u->left;
-    return u;
-}
+    Aux<T> *z = this;
+    Aux<T> *p = 0;
+    Aux<T> *newRoot = 0;
 
-template <class T>
-TreeNode<T>* AuxTree<T>::subtreeMaximum(TreeNode<T> *u)
-{
-    while (u->right)
-        u = u->right;
-    return u;
-}
-
-/* Public methods */
-
-template <class T>
-void AuxTree<T>::insert(const double &key, T *element)
-{
-    TreeNode<T> *z = root;
-    TreeNode<T> *p = 0;
-    
     while (z)
     {
         p = z;
@@ -163,26 +187,24 @@ void AuxTree<T>::insert(const double &key, T *element)
         else
             z = z->left;
     }
-    
-    z = new TreeNode<T>(key);
-    z->element = element;
+
+    z = new Aux<T>(element, key);
     z->parent = p;
-    
+
     if (!p)
-        root = z;
+        ;
     else if (p->key < z->key)
         p->right = z;
     else
         p->left = z;
-    
-    splay(z);
-    _size++;
+
+    return newRoot = z->splay();
 }
 
 template <class T>
-T *AuxTree<T>::find(const double &key)
+T *Aux<T>::find(const int key)
 {
-    TreeNode<T> *z = root;
+    Aux<T> *z = this;
     while (z)
     {
         if(z->key < key)
@@ -196,69 +218,31 @@ T *AuxTree<T>::find(const double &key)
 }
 
 template <class T>
-void AuxTree<T>::splay(TreeNode<T> *x)
+void Aux<T>::erase(const int key)
 {
-    while(x->parent)
-    {
-        if (!x->parent->parent)
-        {
-            if (x->parent->left == x)
-                rightRotate(x->parent);
-            else
-                leftRotate(x->parent);
-            
-        }
-        else if (x->parent->left == x && x->parent->parent->left == x->parent)
-        {
-            rightRotate(x->parent->parent);
-            rightRotate(x->parent);
-        }
-        else if (x->parent->right == x && x->parent->parent->right == x->parent)
-        {
-            leftRotate(x->parent->parent);
-            leftRotate(x->parent);
-        }
-        else if (x->parent->left == x && x->parent->parent->right == x->parent)
-        {
-            rightRotate(x->parent);
-            leftRotate(x->parent);
-        }
-        else
-        {
-            leftRotate(x->parent);
-            rightRotate(x->parent);
-        }
-    }
-}
-
-template <class T>
-void AuxTree<T>::erase(const double &key)
-{
-    TreeNode<T> *z = findNode(key);
+    Aux<T> *z = findNode(key);
     if (!z)
         return;
-    
-    splay(z);
-    
+
+    z->splay();
+
     if (!z->left)
-        replace(z, z->right);
+        z->replace(z->right);
     else if (!z->right)
-        replace(z, z->left);
+        z->replace(z->left);
     else
     {
-        TreeNode<T> *y = subtreeMinimum(z->right);
+        Aux<T> *y = z->right->subtreeMinimum();
         if (y->parent != z)
         {
-            replace(y, y->right);
+            y->replace(y->right);
             y->right = z->right;
             y->right->parent = y;
         }
-        replace(z, y);
+        z->replace(y);
         y->left = z->left;
         y->left->parent = y;
     }
-    
-    _size--;
 }
 
 #endif /* defined(__graphcut__splay__) */
