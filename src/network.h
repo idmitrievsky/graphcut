@@ -35,6 +35,8 @@ public:
     
     /* Find all blocking saturated edges in residual network */
     void minimumCut(Network &minCutEdges);
+    
+    int debug(void);
 };
 
 #endif /* defined(__graphcut__network__) */
