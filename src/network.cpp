@@ -14,45 +14,48 @@
 double Network::edmondskarp(Network &minimumCut)
 {
     double maxFlow = 0, capacity = 0, minCapacity = 0, newCapacity = 0;
-    int i = 0, j = 0;
-    Network residualNetwork = *this, flowNetwork(_nodes, _source, _sink);
+    int i = 0;
+    Network residualNetwork = *this, flowNetwork(_nodes, _source, _sink), blocks(_nodes, _source, _sink);
     std::vector<int> path;
     std::vector<int>::iterator it;
     
     while (!(path = residualNetwork.shortestAugmentingPath()).empty())
     {
         /* Start with initial minimum value */
-        minCapacity = residualNetwork.getArcWeight(*path.begin(), *(path.begin() + 1));
+        minCapacity = residualNetwork.getArcWeight(path[_sink], _sink);
         /* Skip initial value */
-        for (it = path.begin() + 1; it != path.end() - 1; it++)
+        i = path[_sink];
+        while (path[i] != -1)
         {
-            if (residualNetwork.getArcWeight(*it, *(it + 1)) < minCapacity)
+            if (residualNetwork.getArcWeight(path[i], i) < minCapacity)
             {
-                minCapacity = residualNetwork.getArcWeight(*it, *(it + 1));
+                minCapacity = residualNetwork.getArcWeight(path[i], i);
             }
+            i = path[i];
         }
         /* Increase flow as much as possible */
-        for (it = path.begin(); it != path.end() - 1; it++)
+        i = _sink;
+        while (path[i] != -1)
         {
-            newCapacity = flowNetwork.getArcWeight(*it, *(it + 1)) + minCapacity;
-            flowNetwork.setArcWeight(*it, *(it + 1), newCapacity);
-            flowNetwork.setArcWeight(*(it + 1), *it, -1 * newCapacity);
+            newCapacity = flowNetwork.getArcWeight(path[i], i) + minCapacity;
+            flowNetwork.setArcWeight(path[i], i, newCapacity);
+            flowNetwork.setArcWeight(i, path[i], -1 * newCapacity);
+            i = path[i];
         }
         /* Decrease capacity in residual network  */
-        for (i = 0; i < _nodes; i++)
+        i = _sink;
+        while (path[i] != -1)
         {
-            for (j = 0; j < _nodes; j++)
+            capacity = getArcWeight(path[i], i) - flowNetwork.getArcWeight(path[i], i);
+            if (capacity > 0)
             {
-                capacity = getArcWeight(i, j) - flowNetwork.getArcWeight(i, j);
-                if (capacity > 0)
-                {
-                    residualNetwork.setArcWeight(i, j, capacity);
-                }
-                else
-                {
-                    residualNetwork.removeArc(i, j);
-                }
+                residualNetwork.setArcWeight(path[i], i, capacity);
             }
+            else
+            {
+                residualNetwork.removeArc(path[i], i);
+            }
+            i = path[i];
         }
     }
     
@@ -63,16 +66,17 @@ double Network::edmondskarp(Network &minimumCut)
     }
 
     /* Find blocking saturated edges or disconnected pairs of nodes */
-    residualNetwork.minimumCut(minimumCut);
+    residualNetwork.minimumCut(blocks);
     
     /* Filter out disconnected pairs of nodes */
     for (i = 0; i < _nodes; i++)
     {
-        for (j = 0; j < _nodes; j++)
+        for (auto neigh = _arcs[i].begin(); neigh != _arcs[i].end(); neigh++)
         {
-            if (getArcWeight(i, j) == 0)
+            /* If <i> is reachable from <currentNode> */
+            if (blocks.getArcWeight(i, neigh->nodeNumber))
             {
-                minimumCut.removeArc(i, j);
+                minimumCut.setArcWeight(i, neigh->nodeNumber, 1);
             }
         }
     }
@@ -106,7 +110,7 @@ std::vector<int> Network::shortestAugmentingPath(void)
 {
     std::queue<int> toVisit;
     std::vector<int> visitedNodes(_nodes, 0), ancestors(_nodes, 0);
-    std::vector<int> reversedPath, path;
+    std::vector<int> emptyPath, path;
     int currentNode = 0;
     NEIGHBOURLIST::iterator neigh;
     
@@ -143,22 +147,11 @@ std::vector<int> Network::shortestAugmentingPath(void)
     /* Never reached sink, it's blocked */
     if (toVisit.empty())
     {
-        return reversedPath;
+        return emptyPath;
     }
     
 found:
-    /* Start from the sink */
-    currentNode = _sink;
-    /* Make up a path */
-    while (currentNode != -1)
-    {
-        reversedPath.push_back(currentNode);
-        currentNode = ancestors[currentNode];
-    }
-    /* Reverse path */
-    std::for_each(reversedPath.rbegin(), reversedPath.rend(), [&path](int val) { path.push_back(val); });
-
-    return path;
+    return ancestors;
 }
 
 void Network::obduct(Graph &graph, int src, int snk)
