@@ -189,6 +189,37 @@ void Network::obduct(Graph &graph, int src, int snk)
     _sink = snk;
 }
 
+int Network::debug(void)
+{
+    int i = 0, out = 0, in = 0;
+    std::vector<graphIndex> neighbours(4);
+    std::vector<graphIndex>::iterator it;
+    
+    for (i = 1; i < _nodes - 1; i++)
+    {
+        if (getArcWeight(_source, i))
+        {
+            out += 1;
+        };
+        if (getArcWeight(i, _sink))
+        {
+            in += 1;
+        };
+        
+        //        pixelNeighbours(i, neighbours);
+        //
+        //        for (it = neighbours.begin(); it != neighbours.end(); it++)
+        //        {
+        //            assoc.setArcWeight(*it, i, boundWeight);
+        //            assoc.setArcWeight(i, *it, boundWeight);
+        //        }
+        //        neighbours.clear();
+    }
+    
+    std::cout << "Out of source: " << out << std::endl << "Into sink: " << in;
+    return 0;
+}
+
 void Network::minimumCut(Network &minCutEdges)
 {
     std::vector<int> visitedNodes(_nodes, 0);
