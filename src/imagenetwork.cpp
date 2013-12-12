@@ -161,22 +161,22 @@ double ImageNetwork::boundaryTerm(graphIndex p, Label pLabel, graphIndex q, Labe
 {
     /* 1 */
     
-    double weight = 0, eps = 1.0, kapp = 1, alpha = 100;
-    double temp, tempo;
-    
-    if (pLabel == qLabel)
-    {
-        return weight = 0;
-    }
-    else
-    {
-        temp = abs(nodeIntensity(p) - nodeIntensity(q));
-        temp = temp * temp;
-        tempo = abs(nodeIntensity(p) + nodeIntensity(q));
-        tempo = tempo * tempo + eps;
-        weight = alpha * exp(- kapp * (temp / tempo));
-        return weight;
-    }
+//    double weight = 0, eps = 1.0, kapp = 1, alpha = 100;
+//    double temp, tempo;
+//    
+//    if (pLabel == qLabel)
+//    {
+//        return weight = 0;
+//    }
+//    else
+//    {
+//        temp = abs(nodeIntensity(p) - nodeIntensity(q));
+//        temp = temp * temp;
+//        tempo = abs(nodeIntensity(p) + nodeIntensity(q));
+//        tempo = tempo * tempo + eps;
+//        weight = alpha * exp(- kapp * (temp / tempo));
+//        return weight;
+//    }
     
     /* 2 */
     
@@ -196,6 +196,16 @@ double ImageNetwork::boundaryTerm(graphIndex p, Label pLabel, graphIndex q, Labe
     /* 3 */
     
 //    return 80 * fabs(label(p) - label(q));
+    
+    if (grad->at<uchar>(nodeY(p), nodeX(p)) > 50 && pLabel == qLabel)
+    {
+        return 1;
+    }
+    if (grad->at<uchar>(nodeY(p), nodeX(p)) < 50 && pLabel != qLabel)
+    {
+        return 1;
+    }
+    return 2000;
 }
 
 double ImageNetwork::localTerm(graphIndex p, Label pLabel)
@@ -242,11 +252,11 @@ double ImageNetwork::localTerm(graphIndex p, Label pLabel)
     
     if (nodeIntensity(p) < 50 && pLabel == BACKGROUND)
     {
-        return 2000000;
+        return 2000;
     }
     else if (nodeIntensity(p) > 100 && pLabel == FOREGROUND)
     {
-        return 2000000;
+        return 2000;
     }
     else
     {
@@ -278,13 +288,13 @@ double ImageNetwork::energy(Partition *p)
     
     for (i = 1; i < _nodes - 1; i++)
     {
-        energy += localTerm(i, partition->label(i - 1));
+        energy += localTerm(i, p->label(i - 1));
         
         pixelNeighbours(i, neighbours);
         
         for (it = neighbours.begin(); it != neighbours.end(); it++)
         {
-            energy += boundaryTerm(i, partition->label(i - 1), *it, partition->label(*it - 1));
+            energy += boundaryTerm(i, p->label(i - 1), *it, p->label(*it - 1));
         }
         neighbours.clear();
     }

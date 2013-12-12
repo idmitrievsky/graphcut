@@ -26,7 +26,7 @@ Partition::Partition(int nodes)
     
     for (i = 0; i < nodes; i++)
     {
-        labels[i] = BACKGROUND;
+        labels[i] = FOREGROUND;
     }
     nodesNum = nodes;
 }
