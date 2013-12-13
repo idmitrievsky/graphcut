@@ -16,12 +16,17 @@ int Graph::nodes(void)
     return _nodes;
 }
 
-double Graph::getArcWeight(graphIndex i, graphIndex j)
+double Graph::getArcWeight(graphIndex i, graphIndex j, int accurate)
 {
     NEIGHBOURLIST::iterator neigh;
     int found = 0;
     
-    for (neigh = _arcs[i].begin(); neigh != _arcs[i].end(); neigh++)
+    if (accurate != -1)
+    {
+        return _arcs[i][accurate].arcWeight;
+    }
+    
+    for (neigh = _arcs[i].begin(); neigh != _arcs[i].end() && neigh->nodeNumber != -1; neigh++)
     {
         if (neigh->nodeNumber == j)
         {
@@ -38,15 +43,21 @@ double Graph::getArcWeight(graphIndex i, graphIndex j)
     return 0;
 }
 
-void Graph::setArcWeight(graphIndex i, graphIndex j, double weight)
+void Graph::setArcWeight(graphIndex i, graphIndex j, double weight, int accurate)
 {
     NEIGHBOURLIST::iterator neigh;
     int found = 0;
     Neighbour newNeigh = {j, weight};
     
+    if (accurate != -1)
+    {
+        _arcs[i][accurate] = newNeigh;
+        return;
+    }
+    
     for (neigh = _arcs[i].begin(); neigh != _arcs[i].end(); neigh++)
     {
-        if (neigh->nodeNumber == j)
+        if (neigh->nodeNumber == j || neigh->nodeNumber == -1)
         {
             found = 1;
             break;
@@ -55,6 +66,7 @@ void Graph::setArcWeight(graphIndex i, graphIndex j, double weight)
     
     if (found)
     {
+        neigh->nodeNumber = j;
         neigh->arcWeight = weight;
     }
     else
@@ -63,7 +75,7 @@ void Graph::setArcWeight(graphIndex i, graphIndex j, double weight)
     }
 }
 
-Graph::Graph(int nodesNumber, int neighs):_nodes(nodesNumber), _arcs(nodesNumber, NEIGHBOURLIST(neighs))
+Graph::Graph(int nodesNumber, int neighs):_nodes(nodesNumber), _arcs(nodesNumber, NEIGHBOURLIST(neighs, {-1,-1}))
 {
 
 }
@@ -77,7 +89,7 @@ void Graph::init(int nodesNumber, int neighs)
 {
     _nodes = nodesNumber;
     
-    _arcs.assign(nodesNumber, NEIGHBOURLIST(neighs));
+    _arcs.assign(nodesNumber, NEIGHBOURLIST(neighs, {-1, -1}));
 }
 
 Graph::Graph(const Graph&graph)

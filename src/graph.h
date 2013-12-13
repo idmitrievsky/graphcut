@@ -25,13 +25,14 @@ class Graph
 {
 protected:
     int _nodes;
-    std::vector<NEIGHBOURLIST> _arcs;
+    
     
 public:
+    std::vector<NEIGHBOURLIST> _arcs;
     /* Getters */
     int nodes(void);
-    double getArcWeight(graphIndex i, graphIndex j);
-    virtual void setArcWeight(graphIndex i, graphIndex j, double weight);
+    double getArcWeight(graphIndex i, graphIndex j, int accurate = -1);
+    void setArcWeight(graphIndex i, graphIndex j, double weight, int accurate = -1);
     void removeArc(graphIndex i, graphIndex j);
     
     /* Constructors and destructors */
