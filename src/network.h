@@ -21,14 +21,14 @@ public:
     int source(void);
     int sink(void);
     
-    Network(int nodesNum, int _source, int _sink);
+    Network(int nodesNum, int _source, int _sink, int neighs = 0);
     Network(void);
     
     /* Make a valid network from undirected graph*/
     void obduct(Graph &graph, int src, int snk);
     
     /* Find the shortest augmenting path from source to sink */
-    std::vector<int> shortestAugmentingPath(void);
+    bool shortestAugmentingPath(std::vector<int> &ancestors, std::vector<int> &visitedNodes);
     
     /* Find the maximum flow from source to sink and write minimum cut edges to <minCut> */
     double edmondskarp(Network &minCut);

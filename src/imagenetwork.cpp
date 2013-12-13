@@ -63,7 +63,7 @@ ImageNetwork::ImageNetwork(const char *imagePath)
     
     nodesNumber = pixels + 2;
     
-    init(nodesNumber, 6);
+    init(nodesNumber, 5);
     _source = 0;
     _sink = pixels + 1;
     _intensities = new double[_nodes];
@@ -137,19 +137,20 @@ int ImageNetwork::nodeY(graphIndex index)
 void ImageNetwork::pixelNeighbours(graphIndex p, std::vector<graphIndex> &neighbours, bool eight)
 {
     int w = 0, h = 0;
+    int index = 0;
     
     w = image->cols;
     h = image->rows;
     
 
     if (IN_BORDERS(nodeX(p) - 1, nodeY(p), w, h))
-        neighbours.push_back(pixelGraphIndex(nodeX(p) - 1, nodeY(p)));
+        neighbours[index++] = (pixelGraphIndex(nodeX(p) - 1, nodeY(p)));
     if (IN_BORDERS(nodeX(p) + 1, nodeY(p), w, h))
-        neighbours.push_back(pixelGraphIndex(nodeX(p) + 1, nodeY(p)));
+        neighbours[index++] = (pixelGraphIndex(nodeX(p) + 1, nodeY(p)));
     if (IN_BORDERS(nodeX(p), nodeY(p) - 1, w, h))
-        neighbours.push_back(pixelGraphIndex(nodeX(p), nodeY(p) - 1));
+        neighbours[index++] = (pixelGraphIndex(nodeX(p), nodeY(p) - 1));
     if (IN_BORDERS(nodeX(p), nodeY(p) + 1, w, h))
-        neighbours.push_back(pixelGraphIndex(nodeX(p), nodeY(p) + 1));
+        neighbours[index++] = (pixelGraphIndex(nodeX(p), nodeY(p) + 1));
 
     if (eight)
     {
@@ -261,13 +262,13 @@ double ImageNetwork::localTerm(graphIndex p, Label pLabel)
     else
     {
         double weight = 0;
-        std::vector<graphIndex> neighbours(4);
+        std::vector<graphIndex> neighbours(4, -1);
         std::vector<graphIndex>::iterator it;
         int i = 0, hist = 1;
         
         pixelNeighbours(p, neighbours);
         
-        for (it = neighbours.begin(); it != neighbours.end(); it++)
+        for (it = neighbours.begin(); it != neighbours.end() && *it != -1; it++)
         {
             hist += (partition->label(*it - 1) != pLabel ? 0 : 1);
         }
@@ -283,7 +284,7 @@ double ImageNetwork::energy(Partition *p)
 {
     int i = 0;
     double energy = 0;
-    std::vector<graphIndex> neighbours(4);
+    std::vector<graphIndex> neighbours(4, -1);
     std::vector<graphIndex>::iterator it;
     
     for (i = 1; i < _nodes - 1; i++)
@@ -292,11 +293,11 @@ double ImageNetwork::energy(Partition *p)
         
         pixelNeighbours(i, neighbours);
         
-        for (it = neighbours.begin(); it != neighbours.end(); it++)
+        for (it = neighbours.begin(); it != neighbours.end() && *it != -1; it++)
         {
             energy += boundaryTerm(i, p->label(i - 1), *it, p->label(*it - 1));
         }
-        neighbours.clear();
+        neighbours.assign(4, -1);
     }
     
     return energy;
@@ -306,25 +307,29 @@ int ImageNetwork::repart(void)
 {
     int i = 0;
     double boundWeight = 0, t;
-    std::vector<graphIndex> neighbours(4);
+    std::vector<graphIndex> neighbours(4, -1);
     std::vector<graphIndex>::iterator it;
     Partition *newPart = new Partition(*partition);
-    Network minimumCut(_nodes, _source, _sink), assoc(_nodes, _source, _sink);
+    Network minimumCut(_nodes, _source, _sink, 5), assoc(_nodes, _source, _sink, 5);
+    int ind = 0;
+    
+    assoc._arcs[_source].assign(_nodes, {-1, -1});
     
     for (i = 1; i < _nodes - 1; i++)
     {
-        assoc.setArcWeight(_source, i, localTerm(i, FOREGROUND));
-        assoc.setArcWeight(i, _sink, localTerm(i, BACKGROUND));
+        int acc = 0;
+        assoc.setArcWeight(_source, i, localTerm(i, FOREGROUND), ind++);
+        assoc.setArcWeight(i, _sink, localTerm(i, BACKGROUND), acc++);
         
         pixelNeighbours(i, neighbours);
         
-        for (it = neighbours.begin(); it != neighbours.end(); it++)
+        for (it = neighbours.begin(); it != neighbours.end() && *it != -1; it++)
         {
             boundWeight = boundaryTerm(i, FOREGROUND, *it, BACKGROUND);
-            assoc.setArcWeight(*it, i, boundWeight);
-            assoc.setArcWeight(i, *it, boundWeight);
+            //assoc.setArcWeight(*it, i, boundWeight, acc++);
+            assoc.setArcWeight(i, *it, boundWeight, acc++);
         }
-        neighbours.clear();
+        neighbours.assign(4, -1);
     }
     
     t = assoc.edmondskarp(minimumCut);
