@@ -63,7 +63,7 @@ ImageNetwork::ImageNetwork(const char *imagePath)
     
     nodesNumber = pixels + 2;
     
-    init(nodesNumber);
+    init(nodesNumber, 6);
     _source = 0;
     _sink = pixels + 1;
     _intensities = new double[_nodes];
@@ -180,32 +180,32 @@ double ImageNetwork::boundaryTerm(graphIndex p, Label pLabel, graphIndex q, Labe
     
     /* 2 */
     
-//    double sigma = 30, distX = 0, distY = 0, distance = 0, weight = 0, intensDiff = 0;
-//    
+    double sigma = 30, distX = 0, distY = 0, distance = 0, weight = 0, intensDiff = 0;
+    
 //    distX = fabs(nodeX(p) - nodeX(q));
 //    distY = fabs(nodeY(p) - nodeY(q));
 //    
 //    distance = sqrt(distX * distX + distY * distY);
-//    intensDiff = nodeIntensity(p) - nodeIntensity(q);
-//    
-//    weight = exp(-(intensDiff * intensDiff) / (2 * sigma * sigma));
-//    weight /= distance;
-//    
-//    return weight;
+    intensDiff = nodeIntensity(p) - nodeIntensity(q);
+    
+    weight = exp(-(intensDiff * intensDiff) / (2 * sigma * sigma));
+    //weight /= distance;
+    
+    return weight;
     
     /* 3 */
     
 //    return 80 * fabs(label(p) - label(q));
     
-    if (grad->at<uchar>(nodeY(p), nodeX(p)) > 50 && pLabel == qLabel)
-    {
-        return 1;
-    }
-    if (grad->at<uchar>(nodeY(p), nodeX(p)) < 50 && pLabel != qLabel)
-    {
-        return 1;
-    }
-    return 2000;
+//    if (grad->at<uchar>(nodeY(p), nodeX(p)) > 50 && pLabel == qLabel)
+//    {
+//        return 1;
+//    }
+//    if (grad->at<uchar>(nodeY(p), nodeX(p)) < 50 && pLabel != qLabel)
+//    {
+//        return 1;
+//    }
+//    return 2000;
 }
 
 double ImageNetwork::localTerm(graphIndex p, Label pLabel)
