@@ -9,8 +9,6 @@
 #include <iostream>
 #include "imagenetwork.h"
 
-#define NODESNUM 9
-
 int main(int argc, const char * argv[])
 {
     ImageNetwork image(argv[1]);
