@@ -265,11 +265,11 @@ double ImageNetwork::localTerm(graphIndex p, Label pLabel)
         std::vector<graphIndex>::iterator it;
         int i = 0, hist = 1;
         
-        pixelNeighbours(i, neighbours);
+        pixelNeighbours(p, neighbours);
         
         for (it = neighbours.begin(); it != neighbours.end(); it++)
         {
-            hist += (partition->label(*it - 1) != pLabel ? 1 : 0);
+            hist += (partition->label(*it - 1) != pLabel ? 0 : 1);
         }
         
         weight = 10 * log(hist);
