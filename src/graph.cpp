@@ -59,22 +59,13 @@ void Graph::setArcWeight(graphIndex i, graphIndex j, double weight)
     }
     else
     {
-        _arcs[i].push_front(newNeigh);
+        _arcs[i].push_back(newNeigh);
     }
 }
 
-Graph::Graph(int nodesNumber)
+Graph::Graph(int nodesNumber, int neighs):_nodes(nodesNumber), _arcs(nodesNumber, NEIGHBOURLIST(neighs))
 {
-    _nodes = nodesNumber;
-    
-    _arcs = new NEIGHBOURLIST [_nodes];
-}
 
-Graph::Graph(void)
-{
-    _nodes = 0;
-    
-    _arcs = NULL;
 }
 
 int Graph::empty(void)
@@ -82,29 +73,18 @@ int Graph::empty(void)
     return !!_nodes;
 }
 
-void Graph::init(int nodesNumber)
+void Graph::init(int nodesNumber, int neighs)
 {
-    if (_nodes)
-    {
-        _nodes = 0;
-        delete [] _arcs;
-    }
-    
     _nodes = nodesNumber;
     
-    _arcs = new NEIGHBOURLIST [_nodes];
+    _arcs.assign(nodesNumber, NEIGHBOURLIST(neighs));
 }
 
 Graph::Graph(const Graph&graph)
 {
     _nodes = graph._nodes;
     
-    _arcs = new NEIGHBOURLIST [_nodes];
-    
-    for (int i = 0; i < _nodes; i++)
-    {
-        _arcs[i] = graph._arcs[i];
-    }
+    _arcs = graph._arcs;
 }
 
 Graph & Graph::operator = (const Graph &graph)
@@ -120,12 +100,6 @@ Graph & Graph::operator = (const Graph &graph)
     }
     
     return *this;
-}
-
-
-Graph::~Graph(void)
-{
-    delete [] _arcs;
 }
 
 void Graph::testFillUp(void)
@@ -207,7 +181,7 @@ void Graph::removeArc(graphIndex i, graphIndex j)
 
     if (neigh->nodeNumber == j)
     {
-        _arcs[i].pop_front();
+        _arcs[i].erase(neigh);
         return;
     }
     
@@ -224,7 +198,7 @@ void Graph::removeArc(graphIndex i, graphIndex j)
     
     if (found)
     {
-        _arcs[i].erase_after(prev);
+        _arcs[i].erase(neigh);
     }
 }
 

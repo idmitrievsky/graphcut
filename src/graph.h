@@ -11,7 +11,7 @@
 
 #include <forward_list>
 
-#define NEIGHBOURLIST std::forward_list<Neighbour>
+#define NEIGHBOURLIST std::vector<Neighbour>
 
 typedef int graphIndex;
 
@@ -25,27 +25,25 @@ class Graph
 {
 protected:
     int _nodes;
-    NEIGHBOURLIST *_arcs;
+    std::vector<NEIGHBOURLIST> _arcs;
     
 public:
     /* Getters */
     int nodes(void);
     double getArcWeight(graphIndex i, graphIndex j);
-    void setArcWeight(graphIndex i, graphIndex j, double weight);
+    virtual void setArcWeight(graphIndex i, graphIndex j, double weight);
     void removeArc(graphIndex i, graphIndex j);
     
     /* Constructors and destructors */
-    Graph(void);
-    Graph(int _nodes);
+    Graph(int _nodes = 0, int neighs = 0);
     Graph(const Graph &graph);
-    ~Graph();
     
     /* Operators */
     Graph & operator = (const Graph &graph);
     
     /* Methods */
     int empty(void);
-    void init(int nodesNumber);
+    void init(int nodesNumber, int neighs = 0);
     void testFillUp(void);
     void erase(void);
     void print(void);
