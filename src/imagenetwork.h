@@ -39,7 +39,7 @@ public:
     double localTerm(graphIndex p, Label pLabel);
     double energy(Partition *p);
     
-    void outputPartition(char *outPath);
+    void outputPartition(const char *outPath);
 };
 
 #endif /* defined(__graphcut__imagenetwork__) */

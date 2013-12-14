@@ -86,7 +86,7 @@ ImageNetwork::~ImageNetwork(void)
     delete [] _intensities;
 }
 
-void ImageNetwork::outputPartition(char *outPath)
+void ImageNetwork::outputPartition(const char *outPath)
 {
     cv::Mat out(image->rows, image->cols, CV_8UC1);
     int i = 0, j = 0;
