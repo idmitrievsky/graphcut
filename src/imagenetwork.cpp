@@ -18,32 +18,21 @@ static cv::Mat *gradient(cv::Mat *image)
     
     grad = new cv::Mat();
     
-    
     /// Generate grad_x and grad_y
     cv::Mat grad_x, grad_y;
     cv::Mat abs_grad_x, abs_grad_y;
     
     /// Gradient X
-    //cv::Scharr(*image, grad_x, ddepth, 1, 0);
     cv::Sobel(*image, grad_x, ddepth, 1, 0, 3);
     cv::convertScaleAbs( grad_x, abs_grad_x );
     
     /// Gradient Y
-    //cv::Scharr(*image, grad_y, ddepth, 0, 1);
     cv::Sobel(*image, grad_y, ddepth, 0, 1, 3);
     cv::convertScaleAbs( grad_y, abs_grad_y );
     
-    
-//    cv::Mat sq_grad;
-//    cv::Mat sq_grad_x, sq_grad_y;
-//    cv::multiply(abs_grad_x, abs_grad_x, sq_grad_x);
-//    cv::multiply(abs_grad_y, abs_grad_y, sq_grad_y);
-//    cv::add(sq_grad_x, sq_grad_y, sq_grad);
-//    cv::sqrt(sq_grad, *grad);
-    
+
     /// Total Gradient (approximate)
     cv::addWeighted(abs_grad_x, 0.5, abs_grad_y, 0.5, 0, *grad);
-    //cv::cartToPolar(abs_grad_x, abs_grad_y, *grad, angle);
 
     return grad;
 }
@@ -181,16 +170,11 @@ double ImageNetwork::boundaryTerm(graphIndex p, Label pLabel, graphIndex q, Labe
     
     /* 2 */
     
-    double sigma = 30, distX = 0, distY = 0, distance = 0, weight = 0, intensDiff = 0;
+    double sigma = 30, weight = 0, intensDiff = 0;
     
-//    distX = fabs(nodeX(p) - nodeX(q));
-//    distY = fabs(nodeY(p) - nodeY(q));
-//    
-//    distance = sqrt(distX * distX + distY * distY);
     intensDiff = nodeIntensity(p) - nodeIntensity(q);
     
-    weight = exp(-(intensDiff * intensDiff) / (2 * sigma * sigma));
-    //weight /= distance;
+    weight = 5 * exp(-(intensDiff * intensDiff) / (2 * sigma * sigma));
     
     return weight;
     
@@ -251,11 +235,11 @@ double ImageNetwork::localTerm(graphIndex p, Label pLabel)
 //    return fmin(fabs(label - intencity), intencity);
     /* 4 */
     
-    if (nodeIntensity(p) < 50 && pLabel == BACKGROUND)
+    if (nodeIntensity(p) > 80 && pLabel == BACKGROUND)
     {
         return 2000;
     }
-    else if (nodeIntensity(p) > 100 && pLabel == FOREGROUND)
+    else if (nodeIntensity(p) < 50 && pLabel == FOREGROUND)
     {
         return 2000;
     }
@@ -264,7 +248,7 @@ double ImageNetwork::localTerm(graphIndex p, Label pLabel)
         double weight = 0;
         std::vector<graphIndex> neighbours(4, -1);
         std::vector<graphIndex>::iterator it;
-        int i = 0, hist = 1;
+        int hist = 1;
         
         pixelNeighbours(p, neighbours);
         
