@@ -11,8 +11,7 @@
 
 #include <forward_list>
 
-#define NEIGHBOURLIST std::vector<Neighbour>
-
+/* Graph index i matches partition index i - 1 */
 typedef int graphIndex;
 
 struct Neighbour
@@ -21,15 +20,21 @@ struct Neighbour
     double arcWeight;
 };
 
+typedef std::vector<Neighbour> NEIGHBOURLIST;
+
+/* Each node number A have a neighbourlist NL associated with it */
+/* If an instance of Neighbour N occures in NL, then graph contains an arc from A to N.nodeNumber */
+/* Its weight is N.arcWeight */
+
+/* If list contains an instance with nodeNumber equal to -1 it indicates the end of this list */
+
 class Graph
 {
-protected:
-    int _nodes;
-    
-    
 public:
+    /* Neighbour lists associated with each node number */
     std::vector<NEIGHBOURLIST> _arcs;
-    /* Getters */
+    
+    /* Getters and setters */
     int nodes(void);
     double getArcWeight(graphIndex i, graphIndex j, int accurate = -1);
     void setArcWeight(graphIndex i, graphIndex j, double weight, int accurate = -1);
@@ -48,6 +53,9 @@ public:
     void testFillUp(void);
     void erase(void);
     void print(void);
+protected:
+    /* Number of nodes in a graph */
+    int _nodes;
 };
 
 #endif /* defined(__graphcut__graph__) */

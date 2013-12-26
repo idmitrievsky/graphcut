@@ -16,30 +16,32 @@
 
 class ImageNetwork : Network
 {
-    cv::Mat *image;
-    cv::Mat *grad;
-    Partition *partition;
-    double *_intensities;
-    
 public:
+    /* Constructors and destructors */
     ImageNetwork(const char *imagePath);
     ~ImageNetwork(void);
     
+    /* Getters and setters */
     double nodeIntensity(int i);
     void setNodeIntensity(int i, double intensity);
     
-    int pixelGraphIndex(int x, int y);
-    int pixelPartitionIndex(int x, int y);
+    graphIndex pixelGraphIndex(int x, int y);
+    partitionIndex pixelPartitionIndex(int x, int y);
     int nodeX(graphIndex index);
     int nodeY(graphIndex index);
     
     void pixelNeighbours(graphIndex p, std::vector<graphIndex> &neighbours, bool eight = false);
-    int repart(void);
+    bool repart(void);
     double boundaryTerm(graphIndex p, Label pLabel, graphIndex q, Label qLabel);
     double localTerm(graphIndex p, Label pLabel);
     double energy(Partition *p);
     
     void outputPartition(const char *outPath);
+private:
+    cv::Mat *image;
+    cv::Mat *grad;
+    Partition *partition;
+    double *_intensities;
 };
 
 #endif /* defined(__graphcut__imagenetwork__) */

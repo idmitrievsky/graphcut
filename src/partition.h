@@ -11,20 +11,23 @@
 
 #include "network.h"
 
+/* Partition index i matches graph index i + 1 */
+typedef int partitionIndex;
+
 enum Label
 {
     BACKGROUND,
     FOREGROUND
 };
 
-typedef int partitionIndex;
-
 class Partition
 {
-    int nodesNum;
-    Label *labels;
-    
 public:
+    /* Getters and setters */
+    Label label(partitionIndex node);
+    void setLabel(partitionIndex node, Label label);
+    
+    /* Constructors and destructors */
     Partition(int nodes);
     Partition(const Partition &partition);
     ~Partition(void);
@@ -32,9 +35,9 @@ public:
     /* Operators */
     Partition & operator = (const Partition &partition);
     Label operator [](partitionIndex i) const;
-    
-    Label label(partitionIndex node);
-    void setLabel(partitionIndex node, Label label);
+private:
+    int nodesNum;
+    Label *labels;
 };
 
 #endif /* defined(__graphcut__partition__) */

@@ -11,35 +11,39 @@
 #include <iostream>
 #include "network.h"
 
-double Network::edmondskarp(Network &minimumCut)
+void Network::edmondskarp(Network &minimumCut, double *maxFlow)
 {
-    double maxFlow = 0, capacity = 0, minCapacity = 0, newCapacity = 0;
+    double capacity = 0, minCapacity = 0, newCapacity = 0, candidate = 0;
     int i = 0, count = 0;
-    std::vector<int> visitedNodes;
+    std::vector<bool> visitedNodes;
     Network residualNetwork = *this, flowNetwork(_nodes, _source, _sink, 6);
     std::vector<int> path;
     std::vector<int>::iterator it;
     
+    /* Source have a lot of outgoing arcs. So allocate them once. */
     flowNetwork._arcs[_source].assign(flowNetwork.nodes(), {-1, -1});
     
     while (residualNetwork.shortestAugmentingPath(path, visitedNodes))
     {
-        count++;
+        count++; // debug
         /* Start with initial minimum value */
         minCapacity = residualNetwork.getArcWeight(path[_sink], _sink, 0);
         /* Skip initial value */
         i = path[_sink];
         while (path[i] != _source)
         {
-            if (residualNetwork.getArcWeight(path[i], i) < minCapacity)
+            candidate = residualNetwork.getArcWeight(path[i], i);
+            if (candidate < minCapacity)
             {
-                minCapacity = residualNetwork.getArcWeight(path[i], i);
+                minCapacity = candidate;
             }
             i = path[i];
         }
-        if (residualNetwork.getArcWeight(_source, i, i - 1) < minCapacity)
+        /* Because of source having so many outgoing arcs, it's much more effective to check it manually */
+        candidate = residualNetwork.getArcWeight(_source, i, i - 1);
+        if (candidate < minCapacity)
         {
-            minCapacity = residualNetwork.getArcWeight(path[i], i, i - 1);
+            minCapacity = candidate;
         }
 
         /* Increase flow as much as possible */
@@ -81,10 +85,13 @@ double Network::edmondskarp(Network &minimumCut)
         }
     }
     
-    /* Calculate all the flow coming from source */
-    for (i = 0; i < _nodes; i++)
+    if (maxFlow)
     {
-        maxFlow += flowNetwork.getArcWeight(_source, i);
+        /* Calculate all the flow coming from source */
+        for (i = 0; i < _nodes; i++)
+        {
+            *maxFlow += flowNetwork.getArcWeight(_source, i);
+        }
     }
     
     /* Filter out disconnected pairs of nodes */
@@ -94,7 +101,7 @@ double Network::edmondskarp(Network &minimumCut)
     for (i = 0; i < _nodes; i++)
     {
         int ind = 0;
-        for (auto neigh = _arcs[i].begin(); neigh != _arcs[i].end() && neigh->nodeNumber != -1; neigh++)
+        for (auto neigh = _arcs[i].begin(); neigh != _arcs[i].end() && neigh->nodeNumber != -1; ++neigh)
         {
             /* If <i> is reachable from <currentNode> */
             if (visitedNodes[i] && !visitedNodes[neigh->nodeNumber])
@@ -103,8 +110,6 @@ double Network::edmondskarp(Network &minimumCut)
             }
         }
     }
-    
-    return maxFlow;
 }
 
 int Network::source(void)
@@ -129,20 +134,19 @@ Network::Network(void)
     _sink = 0;
 }
 
-bool Network::shortestAugmentingPath(std::vector<int> &ancestors, std::vector<int> &visitedNodes)
+bool Network::shortestAugmentingPath(std::vector<int> &ancestors, std::vector<bool> &visitedNodes)
 {
     std::queue<int> toVisit;
-    
-    std::vector<int> emptyPath, path;
     int currentNode = 0;
     NEIGHBOURLIST::iterator neigh;
     
+    /* Clear containers */
     ancestors.assign(_nodes, 0);
-    visitedNodes.assign(_nodes, 0);
+    visitedNodes.assign(_nodes, false);
     
     /* Start from the source */
     toVisit.push(_source);
-    visitedNodes[_source] = 1;
+    visitedNodes[_source] = true;
     
     /* Source don't have any ancestors */
     ancestors[_source] = -1;
@@ -152,12 +156,13 @@ bool Network::shortestAugmentingPath(std::vector<int> &ancestors, std::vector<in
         currentNode = toVisit.front();
         toVisit.pop();
         
-        for (neigh = _arcs[currentNode].begin(); neigh != _arcs[currentNode].end() && neigh->nodeNumber != -1; neigh++)
+        for (neigh = _arcs[currentNode].begin(); neigh != _arcs[currentNode].end() && neigh->nodeNumber != -1; ++neigh)
         {
             /* If <i> is reachable from <currentNode> */
             if (!visitedNodes[neigh->nodeNumber] && neigh->arcWeight)
             {
-                visitedNodes[neigh->nodeNumber] = 1;
+                visitedNodes[neigh->nodeNumber] = true;
+                
                 /* Write ancestor for backwards path */
                 ancestors[neigh->nodeNumber] = currentNode;
                 
@@ -178,11 +183,11 @@ found:
 
 void Network::obduct(Graph &graph, int src, int snk)
 {
-    int i = 0, j = 0;
+    erase();
     
-    for (i = 0; i < graph.nodes(); i++)
+    for (int i = 0; i < graph.nodes(); i++)
     {
-        for (j = 0; j < graph.nodes(); j++)
+        for (int j = 0; j < graph.nodes(); j++)
         {
             if (graph.getArcWeight(i, j))
             {
@@ -191,15 +196,12 @@ void Network::obduct(Graph &graph, int src, int snk)
         }
     }
     
-    print();
-    
-    for (i = 0; i < graph.nodes(); i++)
+    for (int i = 0; i < graph.nodes(); i++)
     {
         removeArc(i, src);
         removeArc(snk, i);
     }
-
-    print();
+    
     _source = src;
     _sink = snk;
 }
@@ -233,6 +235,4 @@ int Network::debug(void)
     
     std::cout << "Out of source: " << out << std::endl << "Into sink: " << in;
     return 0;
-}
-
 }

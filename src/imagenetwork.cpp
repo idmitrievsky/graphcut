@@ -30,7 +30,6 @@ static cv::Mat *gradient(cv::Mat *image)
     cv::Sobel(*image, grad_y, ddepth, 0, 1, 3);
     cv::convertScaleAbs( grad_y, abs_grad_y );
     
-
     /// Total Gradient (approximate)
     cv::addWeighted(abs_grad_x, 0.5, abs_grad_y, 0.5, 0, *grad);
 
@@ -40,30 +39,34 @@ static cv::Mat *gradient(cv::Mat *image)
 
 ImageNetwork::ImageNetwork(const char *imagePath)
 {
-    int i = 0, j = 0, pixels = 0, nodesNumber = 0;
+    int pixels = 0, nodesNumber = 0;
     
     image = new cv::Mat;
-    
     *image = cv::imread(imagePath, CV_LOAD_IMAGE_GRAYSCALE);
+    
     grad = gradient(image);
     cv::imwrite("/Users/ivan/.supp/code/graphcut/grad.jpg", *grad);
     
     pixels = image->rows * image->cols;
     
+    /* Source and sink aren't pixels */
     nodesNumber = pixels + 2;
     
+    /* Only now, when the number of nodes in known, it's time to allocate memory */
     init(nodesNumber, 5);
     _source = 0;
     _sink = pixels + 1;
     _intensities = new double[_nodes];
     
-    for (i = 0; i < image->rows; i++)
+    for (int i = 0; i < image->rows; i++)
     {
-        for (j = 0; j < image->cols; j++)
+        for (int j = 0; j < image->cols; j++)
         {
             _intensities[pixelGraphIndex(i, j)] = image->at<uchar>(i, j);
         }
     }
+    
+    /* Source and sink aren't pixels */
     _intensities[0] = _intensities[pixels + 1] = 0;
     
     partition = new Partition(pixels);
@@ -73,16 +76,16 @@ ImageNetwork::~ImageNetwork(void)
 {
     delete image;
     delete [] _intensities;
+    delete partition;
 }
 
 void ImageNetwork::outputPartition(const char *outPath)
 {
     cv::Mat out(image->rows, image->cols, CV_8UC1);
-    int i = 0, j = 0;
     
-    for (i = 0; i < image->rows; i++)
+    for (int i = 0; i < image->rows; i++)
     {
-        for (j = 0; j < image->cols; j++)
+        for (int j = 0; j < image->cols; j++)
         {
             out.at<uchar>(i, j) = 255 * partition->label(pixelPartitionIndex(i, j));
         }
@@ -103,13 +106,15 @@ void ImageNetwork::setNodeIntensity(int i, double intensity)
     _intensities[i] = intensity;
 }
 
-int ImageNetwork::pixelGraphIndex(int x, int y)
+graphIndex ImageNetwork::pixelGraphIndex(int x, int y)
 {
+    /* Source isn't a pixel, but it's numbered 0 */
     return 1 + x + y * image->cols;
 }
 
-int ImageNetwork::pixelPartitionIndex(int x, int y)
+partitionIndex ImageNetwork::pixelPartitionIndex(int x, int y)
 {
+    /* Partition doesn't know about any kind of graph */
     return x + y * image->cols;
 }
 
@@ -252,14 +257,13 @@ double ImageNetwork::localTerm(graphIndex p, Label pLabel)
         
         pixelNeighbours(p, neighbours);
         
-        for (it = neighbours.begin(); it != neighbours.end() && *it != -1; it++)
+        for (it = neighbours.begin(); it != neighbours.end() && *it != -1; ++it)
         {
             hist += (partition->label(*it - 1) != pLabel ? 0 : 1);
         }
         
         weight = 10 * log(hist);
         return weight;
-
     }
 }
 
@@ -287,7 +291,7 @@ double ImageNetwork::energy(Partition *p)
     return energy;
 }
 
-int ImageNetwork::repart(void)
+bool ImageNetwork::repart(void)
 {
     int i = 0;
     double boundWeight = 0, t;
@@ -316,7 +320,7 @@ int ImageNetwork::repart(void)
         neighbours.assign(4, -1);
     }
     
-    t = assoc.edmondskarp(minimumCut);
+    assoc.edmondskarp(minimumCut);
     
     for (i = 1; i < _nodes - 1; i++)
     {
@@ -338,10 +342,10 @@ int ImageNetwork::repart(void)
     {
         delete partition;
         partition = newPart;
-        return 1;
+        return true;
     }
     
-    return 0;
+    return false;
 }
 
 

@@ -6,7 +6,6 @@
 //  Copyright (c) 2013 Ivan Dmitrievsky. All rights reserved.
 //
 
-#include <math.h>
 #include "partition.h"
 
 Label Partition::label(partitionIndex node)
@@ -21,10 +20,9 @@ void Partition::setLabel(partitionIndex node, Label label)
 
 Partition::Partition(int nodes)
 {
-    int i = 0;
     labels = new Label[nodes];
     
-    for (i = 0; i < nodes; i++)
+    for (int i = 0; i < nodes; i++)
     {
         labels[i] = FOREGROUND;
     }
@@ -33,12 +31,10 @@ Partition::Partition(int nodes)
 
 Partition::Partition(const Partition &partition)
 {
-    int i = 0;
-    
     nodesNum = partition.nodesNum;
     labels = new Label[nodesNum];
     
-    for (i = 0; i < nodesNum; i++)
+    for (int i = 0; i < nodesNum; i++)
     {
         labels[i] = partition.labels[i];
     }

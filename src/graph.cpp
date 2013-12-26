@@ -11,26 +11,29 @@
 #include <iostream>
 #include "graph.h"
 
+/* Returns number of nodes in a graph */
 int Graph::nodes(void)
 {
     return _nodes;
 }
 
+/* If the exact position of arc is known an <accurate> index can be specified */
+/* It allows a much faster lookup */
 double Graph::getArcWeight(graphIndex i, graphIndex j, int accurate)
 {
     NEIGHBOURLIST::iterator neigh;
-    int found = 0;
+    bool found = false;
     
     if (accurate != -1)
     {
         return _arcs[i][accurate].arcWeight;
     }
     
-    for (neigh = _arcs[i].begin(); neigh != _arcs[i].end() && neigh->nodeNumber != -1; neigh++)
+    for (neigh = _arcs[i].begin(); neigh != _arcs[i].end() && neigh->nodeNumber != -1; ++neigh)
     {
         if (neigh->nodeNumber == j)
         {
-            found = 1;
+            found = true;
             break;
         }
     }
@@ -43,10 +46,12 @@ double Graph::getArcWeight(graphIndex i, graphIndex j, int accurate)
     return 0;
 }
 
+/* If the exact position of arc is known an <accurate> index can be specified */
+/* It allows a much faster insertion */
 void Graph::setArcWeight(graphIndex i, graphIndex j, double weight, int accurate)
 {
     NEIGHBOURLIST::iterator neigh;
-    int found = 0;
+    bool found = false;
     Neighbour newNeigh = {j, weight};
     
     if (accurate != -1)
@@ -55,11 +60,11 @@ void Graph::setArcWeight(graphIndex i, graphIndex j, double weight, int accurate
         return;
     }
     
-    for (neigh = _arcs[i].begin(); neigh != _arcs[i].end(); neigh++)
+    for (neigh = _arcs[i].begin(); neigh != _arcs[i].end(); ++neigh)
     {
         if (neigh->nodeNumber == j || neigh->nodeNumber == -1)
         {
-            found = 1;
+            found = true;
             break;
         }
     }
@@ -75,16 +80,19 @@ void Graph::setArcWeight(graphIndex i, graphIndex j, double weight, int accurate
     }
 }
 
+/* <neighs> is an approximate number of neighbours for each node */
+/* Specifying this allows fewer memory allocations */
 Graph::Graph(int nodesNumber, int neighs):_nodes(nodesNumber), _arcs(nodesNumber, NEIGHBOURLIST(neighs, {-1,-1}))
 {
-
 }
 
+/* Graph is empty if nodes number is equal to zero */
 int Graph::empty(void)
 {
     return !!_nodes;
 }
 
+/* Allows to initialize graph with new parameters */
 void Graph::init(int nodesNumber, int neighs)
 {
     _nodes = nodesNumber;
@@ -95,7 +103,6 @@ void Graph::init(int nodesNumber, int neighs)
 Graph::Graph(const Graph&graph)
 {
     _nodes = graph._nodes;
-    
     _arcs = graph._arcs;
 }
 
@@ -105,7 +112,7 @@ Graph & Graph::operator = (const Graph &graph)
     {
         _nodes = graph._nodes;
         
-        for (int i = 0; i < _nodes; i++)
+        for (int i = 0; i < _nodes; ++i)
         {
             _arcs[i] = graph._arcs[i];
         }
@@ -114,11 +121,10 @@ Graph & Graph::operator = (const Graph &graph)
     return *this;
 }
 
+/* Isolates each node in a graph */
 void Graph::erase(void)
 {
-    int i = 0;
-    
-    for (i = 0; i < _nodes; i++)
+    for (int i = 0; i < _nodes; i++)
     {
         _arcs[i].clear();
     }
@@ -126,12 +132,11 @@ void Graph::erase(void)
 
 void Graph::print(void)
 {
-    int i = 0;
     NEIGHBOURLIST::iterator neigh;
     
-    for (i = 0; i < _nodes; i++)
+    for (int i = 0; i < _nodes; i++)
     {
-        for (neigh = _arcs[i].begin(); neigh != _arcs[i].end(); neigh++)
+        for (neigh = _arcs[i].begin(); neigh != _arcs[i].end(); ++neigh)
         {
             std::cout << '(' << i << ", " << neigh->nodeNumber << ", " << neigh->arcWeight << ") ";
         }
@@ -143,7 +148,7 @@ void Graph::print(void)
 void Graph::removeArc(graphIndex i, graphIndex j)
 {
     NEIGHBOURLIST::iterator neigh, prev;
-    int found = 0;
+    bool found = false;
 
     if (_arcs[i].empty())
     {
@@ -159,11 +164,11 @@ void Graph::removeArc(graphIndex i, graphIndex j)
     }
     
     prev = neigh;
-    for (neigh++; neigh != _arcs[i].end(); neigh++)
+    for (++neigh; neigh != _arcs[i].end(); ++neigh)
     {
         if (neigh->nodeNumber == j)
         {
-            found = 1;
+            found = true;
             break;
         }
         prev = neigh;
