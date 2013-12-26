@@ -297,7 +297,7 @@ bool ImageNetwork::repart(void)
     double boundWeight = 0, t;
     std::vector<graphIndex> neighbours(4, -1);
     std::vector<graphIndex>::iterator it;
-    Partition *newPart = new Partition(*partition);
+    Partition *newPart = new Partition(nodes() - 2);
     Network minimumCut(_nodes, _source, _sink, 5), assoc(_nodes, _source, _sink, 5);
     int ind = 0;
     
@@ -326,13 +326,13 @@ bool ImageNetwork::repart(void)
     {
         if (minimumCut.getArcWeight(assoc.source(), i))
         {
-            t = newPart->label(i);
-            newPart->setLabel(i, FOREGROUND);
-            t = newPart->label(i);
+            t = newPart->label(i - 1);
+            newPart->setLabel(i - 1, FOREGROUND);
+            t = newPart->label(i - 1);
         }
         else if (minimumCut.getArcWeight(i, assoc.sink()))
         {
-            newPart->setLabel(i, BACKGROUND);
+            newPart->setLabel(i - 1, BACKGROUND);
         }
     }
     
