@@ -9,8 +9,6 @@
 #ifndef __graphcut__graph__
 #define __graphcut__graph__
 
-#include <forward_list>
-
 /* Graph index i matches partition index i - 1 */
 typedef int graphIndex;
 
@@ -50,7 +48,6 @@ public:
     /* Methods */
     int empty(void);
     void init(int nodesNumber, int neighs = 0);
-    void testFillUp(void);
     void erase(void);
     void print(void);
 protected:

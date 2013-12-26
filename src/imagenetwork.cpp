@@ -75,6 +75,7 @@ ImageNetwork::ImageNetwork(const char *imagePath)
 ImageNetwork::~ImageNetwork(void)
 {
     delete image;
+    delete grad;
     delete [] _intensities;
     delete partition;
 }
@@ -270,12 +271,11 @@ double ImageNetwork::localTerm(graphIndex p, Label pLabel)
 
 double ImageNetwork::energy(Partition *p)
 {
-    int i = 0;
     double energy = 0;
     std::vector<graphIndex> neighbours(4, -1);
     std::vector<graphIndex>::iterator it;
     
-    for (i = 1; i < _nodes - 1; i++)
+    for (int i = 1; i < _nodes - 1; i++)
     {
         energy += localTerm(i, p->label(i - 1));
         
@@ -293,7 +293,6 @@ double ImageNetwork::energy(Partition *p)
 
 bool ImageNetwork::repart(void)
 {
-    int i = 0;
     double boundWeight = 0, t;
     std::vector<graphIndex> neighbours(4, -1);
     std::vector<graphIndex>::iterator it;
@@ -303,7 +302,7 @@ bool ImageNetwork::repart(void)
     
     assoc._arcs[_source].assign(_nodes, {-1, -1});
     
-    for (i = 1; i < _nodes - 1; i++)
+    for (int i = 1; i < _nodes - 1; i++)
     {
         int acc = 0;
         assoc.setArcWeight(_source, i, localTerm(i, FOREGROUND), ind++);
@@ -322,7 +321,7 @@ bool ImageNetwork::repart(void)
     
     assoc.edmondskarp(minimumCut);
     
-    for (i = 1; i < _nodes - 1; i++)
+    for (int i = 1; i < _nodes - 1; i++)
     {
         if (minimumCut.getArcWeight(assoc.source(), i))
         {
