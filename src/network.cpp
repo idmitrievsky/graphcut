@@ -86,9 +86,6 @@ double Network::edmondskarp(Network &minimumCut)
     {
         maxFlow += flowNetwork.getArcWeight(_source, i);
     }
-
-//    /* Find blocking saturated edges or disconnected pairs of nodes */
-//    residualNetwork.minimumCut(blocks);
     
     /* Filter out disconnected pairs of nodes */
     
@@ -238,44 +235,4 @@ int Network::debug(void)
     return 0;
 }
 
-void Network::minimumCut(Network &minCutEdges)
-{
-    std::vector<int> visitedNodes(_nodes, 0);
-    std::stack<int> toVisit;
-    int currentNode = 0;
-    int i = 0, j = 0;
-    NEIGHBOURLIST::iterator neigh;
-    
-    /* Start from source */
-    visitedNodes[_source] = 1;
-    toVisit.push(_source);
-    
-    while (!toVisit.empty())
-    {
-        currentNode = toVisit.top();
-        toVisit.pop();
-        
-        for (neigh = _arcs[currentNode].begin(); neigh != _arcs[currentNode].end() && neigh->nodeNumber != -1; neigh++)
-        {
-            /* If <i> is reachable from <currentNode> */
-            if (!visitedNodes[neigh->nodeNumber] && neigh->arcWeight)
-            {
-                visitedNodes[neigh->nodeNumber] = 1;
-                toVisit.push(neigh->nodeNumber);
-
-            }
-        }
-    }
-    
-    /* If <j> is unreachable from <i> it is either blocked or they are disconnected */
-    for (i = 0; i < _nodes; i++)
-    {
-        for (j = 0; j < _nodes; j++)
-        {
-            if (visitedNodes[i] && !visitedNodes[j])
-            {
-                minCutEdges.setArcWeight(i, j, 1);
-            }
-        }
-    }
 }

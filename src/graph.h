@@ -48,7 +48,6 @@ public:
     void testFillUp(void);
     void erase(void);
     void print(void);
-    void bfs(void);
 };
 
 #endif /* defined(__graphcut__graph__) */

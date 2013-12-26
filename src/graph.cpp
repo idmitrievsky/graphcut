@@ -114,45 +114,6 @@ Graph & Graph::operator = (const Graph &graph)
     return *this;
 }
 
-void Graph::testFillUp(void)
-{
-    int i = 0, j = 0;
-    
-    setArcWeight(0, 1, 12);
-    setArcWeight(0, 2, 15);
-    setArcWeight(0, 3, 20);
-    setArcWeight(1, 2, 5);
-    setArcWeight(1, 5, 5);
-    setArcWeight(1, 6, 2);
-    setArcWeight(2, 3, 11);
-    setArcWeight(2, 4, 3);
-    setArcWeight(2, 6, 6);
-    setArcWeight(3, 4, 4);
-    setArcWeight(3, 7, 8);
-    setArcWeight(4, 6, 6);
-    setArcWeight(4, 7, 1);
-    setArcWeight(5, 6, 9);
-    setArcWeight(5, 8, 18);
-    setArcWeight(6, 7, 7);
-    setArcWeight(6, 8, 13);
-    setArcWeight(7, 8, 10);
-    
-    for (i = 0; i < _nodes; i++)
-    {
-        for (j = 0; j < i + 1; j++)
-        {
-            if (getArcWeight(i, j))
-            {
-                setArcWeight(j, i, getArcWeight(i, j));;
-            }
-            if (getArcWeight(j, i))
-            {
-                setArcWeight(i, j, getArcWeight(j, i));;
-            }
-        }
-    }
-}
-
 void Graph::erase(void)
 {
     int i = 0;
@@ -213,32 +174,3 @@ void Graph::removeArc(graphIndex i, graphIndex j)
         _arcs[i].erase(neigh);
     }
 }
-
-void Graph::bfs(void)
-{
-    std::vector<int> visitedNodes(_nodes, 0);
-    std::queue<int> toVisit;
-    int currentNode = 0;
-    NEIGHBOURLIST::iterator neigh;
-    
-    /* Start from the first node */
-    visitedNodes[0] = 1;
-    toVisit.push(0);
-    
-    while (!toVisit.empty())
-    {
-        currentNode = toVisit.front();
-        toVisit.pop();
-        
-        for (neigh = _arcs[currentNode].begin(); neigh != _arcs[currentNode].end(); neigh++)
-        {
-            /* If <i> is reacheable from <currentNode> */
-            if (!visitedNodes[neigh->nodeNumber])
-            {
-                visitedNodes[neigh->nodeNumber] = 1;
-                toVisit.push(neigh->nodeNumber);
-            }
-        }
-    }
-}
-

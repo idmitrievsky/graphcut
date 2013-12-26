@@ -33,9 +33,6 @@ public:
     /* Find the maximum flow from source to sink and write minimum cut edges to <minCut> */
     double edmondskarp(Network &minCut);
     
-    /* Find all blocking saturated edges in residual network */
-    void minimumCut(Network &minCutEdges);
-    
     int debug(void);
 };
 
