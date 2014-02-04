@@ -199,7 +199,7 @@ double ImageNetwork::boundaryTerm(graphIndex p, Label pLabel, graphIndex q, Labe
 //    return 2000;
 }
 
-double ImageNetwork::localTerm(graphIndex p, Label pLabel)
+double ImageNetwork::localTerm(graphIndex p, Label pLabel, Partition *part)
 {
     /* 1 */
     
@@ -260,7 +260,7 @@ double ImageNetwork::localTerm(graphIndex p, Label pLabel)
         
         for (it = neighbours.begin(); it != neighbours.end() && *it != -1; ++it)
         {
-            hist += (partition->label(*it - 1) != pLabel ? 0 : 1);
+            hist += (part->label(*it - 1) != pLabel ? 0 : 1);
         }
         
         weight = 10 * log(hist);
@@ -277,7 +277,7 @@ double ImageNetwork::energy(Partition *p)
     
     for (int i = 1; i < _nodes - 1; i++)
     {
-        energy += localTerm(i, p->label(i - 1));
+        energy += localTerm(i, p->label(i - 1), p);
         
         pixelNeighbours(i, neighbours);
         
@@ -305,8 +305,8 @@ bool ImageNetwork::repart(void)
     for (int i = 1; i < _nodes - 1; i++)
     {
         int acc = 0;
-        assoc.setArcWeight(_source, i, localTerm(i, FOREGROUND), ind++);
-        assoc.setArcWeight(i, _sink, localTerm(i, BACKGROUND), acc++);
+        assoc.setArcWeight(_source, i, localTerm(i, FOREGROUND, partition), ind++);
+        assoc.setArcWeight(i, _sink, localTerm(i, BACKGROUND, partition), acc++);
         
         pixelNeighbours(i, neighbours);
         

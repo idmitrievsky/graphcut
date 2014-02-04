@@ -33,7 +33,7 @@ public:
     void pixelNeighbours(graphIndex p, std::vector<graphIndex> &neighbours, bool eight = false);
     bool repart(void);
     double boundaryTerm(graphIndex p, Label pLabel, graphIndex q, Label qLabel);
-    double localTerm(graphIndex p, Label pLabel);
+    double localTerm(graphIndex p, Label pLabel, Partition *part);
     double energy(Partition *p);
     
     void outputPartition(const char *outPath);
