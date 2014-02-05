@@ -37,6 +37,7 @@ public:
     double energy(Partition *p);
     
     void outputPartition(const char *outPath);
+    void outputPartition(cv::Mat *image);
 private:
     bool allocatedImage;
     cv::Mat *image;

@@ -101,6 +101,24 @@ void ImageNetwork::outputPartition(const char *outPath)
     cv::imwrite(outPath, out);
 }
 
+void ImageNetwork::outputPartition(cv::Mat *image)
+{
+    cv::Mat out(image->rows, image->cols, CV_8UC1);
+    
+    for (int i = 0; i < image->rows; i++)
+    {
+        for (int j = 0; j < image->cols; j++)
+        {
+            out.at<uchar>(i, j) = 255 * partition->label(pixelPartitionIndex(i, j));
+        }
+    }
+    
+    out = out > 127;
+    
+    *image = out;
+}
+
+
 double ImageNetwork::nodeIntensity(int i)
 {
     return _intensities[i];
