@@ -75,7 +75,10 @@ ImageNetwork::ImageNetwork(const char *imagePath)
 
 ImageNetwork::~ImageNetwork(void)
 {
-    delete image;
+    if (allocatedImage)
+    {
+        delete image;
+    }
     delete grad;
     delete [] _intensities;
     delete partition;
