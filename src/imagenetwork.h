@@ -38,6 +38,7 @@ public:
     
     void outputPartition(const char *outPath);
 private:
+    bool allocatedImage;
     cv::Mat *image;
     cv::Mat *grad;
     Partition *partition;

@@ -42,6 +42,7 @@ ImageNetwork::ImageNetwork(const char *imagePath)
     int pixels = 0, nodesNumber = 0;
     
     image = new cv::Mat;
+    allocatedImage = true;
     *image = cv::imread(imagePath, CV_LOAD_IMAGE_GRAYSCALE);
     
     grad = gradient(image);
