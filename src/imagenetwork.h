@@ -19,6 +19,7 @@ class ImageNetwork : Network
 public:
     /* Constructors and destructors */
     ImageNetwork(const char *imagePath);
+    ImageNetwork(cv::Mat *img);
     ~ImageNetwork(void);
     
     /* Getters and setters */

@@ -73,6 +73,41 @@ ImageNetwork::ImageNetwork(const char *imagePath)
     partition = new Partition(pixels);
 }
 
+ImageNetwork::ImageNetwork(cv::Mat *img)
+{
+    int pixels = 0, nodesNumber = 0;
+    
+    image = img;
+    allocatedImage = false;
+    
+    grad = gradient(image);
+    cv::imwrite("/Users/ivan/.supp/code/graphcut/grad.jpg", *grad);
+    
+    pixels = image->rows * image->cols;
+    
+    /* Source and sink aren't pixels */
+    nodesNumber = pixels + 2;
+    
+    /* Only now, when the number of nodes in known, it's time to allocate memory */
+    init(nodesNumber, 5);
+    _source = 0;
+    _sink = pixels + 1;
+    _intensities = new double[_nodes];
+    
+    for (int i = 0; i < image->rows; i++)
+    {
+        for (int j = 0; j < image->cols; j++)
+        {
+            _intensities[pixelGraphIndex(i, j)] = image->at<uchar>(i, j);
+        }
+    }
+    
+    /* Source and sink aren't pixels */
+    _intensities[0] = _intensities[pixels + 1] = 0;
+    
+    partition = new Partition(pixels);
+}
+
 ImageNetwork::~ImageNetwork(void)
 {
     if (allocatedImage)
